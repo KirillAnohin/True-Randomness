@@ -1,6 +1,7 @@
 import pyrealsense2 as rs
 import numpy as np
 from threading import Thread
+import config
 
 #TODO: add a depth stream and a method for returning depth data
 #also see https://github.com/ReikoR/bbr18-software/blob/001TRT/goal_distance/goal_distance.py
