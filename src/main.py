@@ -1,4 +1,4 @@
-from src import vision
+from src import vision, driving
 import cv2
 
 
@@ -16,6 +16,13 @@ def execute():
 
     cv2.destroyAllWindows()
 
+def gs():
+    obj1 = driving.SerialCom(10)
+    obj1.forward()
+    obj1.__del__()
+
+
 
 if __name__ == "__main__":
-    execute()
+    #execute()
+    gs()

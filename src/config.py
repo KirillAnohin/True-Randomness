@@ -4,7 +4,7 @@ from pathlib import Path
 config_path = "/config/config.ini"  # Path where default config is located
 
 root_dir = Path(__file__).parent.parent
-parser = ConfigParser().read(root_dir.joinpath(config_path))
+parser = configparser.ConfigParser().read(root_dir.joinpath(config_path))
 
 
 def get(section, key):
