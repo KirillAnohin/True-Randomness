@@ -8,11 +8,16 @@ parser = configparser.ConfigParser().read(root_dir.joinpath(config_path))
 
 
 def get(section, key):
-    parser.get(section, key)
+    try:
+        parser.get(section, key)
+    except Exception as e:
+        print(e)
 
-
-def set():
-    parser.set(section, key, value)
+def set(section, key, value):
+    try:
+        parser.set(section, key, value)
+    except Exception as e:
+        print(e)
 
 
 def save():
