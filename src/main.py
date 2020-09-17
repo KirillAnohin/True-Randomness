@@ -1,15 +1,9 @@
-import sys
-import termios
-import tty
-
 from src import calibration, config
-from functools import partial
-
 from src import vision, driving
+import time
 import cv2
 
 parser = config.config()
-
 
 def calibrate():
     if parser.get("Params", "Calibrate"):
@@ -17,41 +11,31 @@ def calibrate():
     else:
         pass
 
-
-def getch():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-
-    return ch
-
-
-def gs():
-    obj1 = driving.SerialCom(10)
+def manual_movment():
+    cv2.namedWindow("Processed")
+    obj1 = driving.SerialCom()
     while True:
-        suund = getch()
-        print(suund)
-        if suund == 'w':
+        k = cv2.waitKey(1)
+        if k == ord("w"):
             print("WWWWWWW")
-            obj1.forward()
-        elif suund == 's':
+            obj1.forward(10)
+        elif k == ord("s"):
             print("SSSSSSSSS")
-            obj1.reverse()
-        elif suund == 'd':
+            obj1.reverse(10)
+        elif k == ord("d"):
             print("DDDDDDD")
-            obj1.right()
-        elif suund == 'a':
+            obj1.right(10)
+        elif k == ord("a"):
             print("AAAAAAAAA")
-            obj1.left()
-        elif suund == 'p':
+            obj1.left(10)
+        elif k == ord("p"):
             print("Break")
             break
 
     obj1.__del__()
 
+    
 if __name__ == "__main__":
     calibrate()
+    manual_movment()
+
