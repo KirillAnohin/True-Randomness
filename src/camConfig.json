@@ -86,5 +86,10 @@
     "param-texturecountthresh": "0",
     "param-texturedifferencethresh": "0",
     "param-usersm": "1",
-    "param-zunits": "1000"
+    "param-zunits": "1000",
+    "stream-depth-format": "Z16",
+    "stream-color-format": "bgr8",
+    "stream-fps": "30",
+    "stream-height": "720",
+    "stream-width": "1280"
 }
