@@ -13,6 +13,7 @@ class imageCapRS2:
     def commandThread(self):
         while self.running:
             self.frames = self.pipeline.wait_for_frames()
+            self.depth_image = self.frames.get_depth_frame()
             self.color_frame = self.frames.get_color_frame()
             self.currentFrame = np.asanyarray(self.color_frame.get_data())
 
@@ -28,6 +29,8 @@ class imageCapRS2:
         self.config = rs.config()
         self.config.enable_stream(rs.stream.color, self.rs_config.get('Cam', 'Width'),
                                   self.rs_config.get('Cam', 'Height'), rs.format.bgr8, 60)
+        self.config.enable_stream(rs.stream.depth, self.rs_config.get('Cam', 'Width'),
+                                  self.rs_config.get('Cam', 'Height'), rs.format.z16, 60)
         self.pipeline.start(self.config)
 
         # initialize the values for the frame related variables
@@ -37,7 +40,7 @@ class imageCapRS2:
         Thread(name="commandThread", target=self.commandThread).start()
 
     def getFrame(self):
-        return self.currentFrame
+        return self.depth_image, self.currentFrame
 
     def setStopped(self, stopped):
         self.pipeline.stop()
