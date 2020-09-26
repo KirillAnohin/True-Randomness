@@ -36,7 +36,7 @@ def find_device_that_supports_advanced_mode():
 
 
 try:
-    configPath = Path(__file__).parent.joinpath("camConfig.json")
+    configPath = Path(__file__).parent.parent.joinpath("./config/camConfig.json")
     dev = find_device_that_supports_advanced_mode()
     advnc_mode = rs.rs400_advanced_mode(dev)
     print("Advanced mode is", "enabled" if advnc_mode.is_enabled() else "disabled")

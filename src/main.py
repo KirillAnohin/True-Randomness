@@ -37,5 +37,5 @@ def manual_movment():
     
 if __name__ == "__main__":
     calibrate()
-    manual_movment()
+    #manual_movment()
 
