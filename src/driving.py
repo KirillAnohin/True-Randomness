@@ -7,26 +7,28 @@ class serialCom:
 
     def commandThread(self):
         while self.running:
+            print(self.gs)
+
+            drive = ("sd:" + str(self.speed[0]) + ":" + str(self.speed[1]) + ":" + str(self.speed[2]) + "\r\n")
+            throw = ("d:" + str(self.throwSpeed) + "\r\n")
+
+            self.ser.write(drive.encode("utf-8"))
+
             time.sleep(0.002)
-            print(self.speed)
-            self.ser.write(self.message.encode("utf-8"))
-            # Buffer cleanup
+
+            self.ser.write(throw.encode("utf-8"))
+
             while self.ser.inWaiting() > 0:
                 self.ser.read()
 
     def __init__(self):
         self.running = True
-        self.message = ""
+        self.speed = [0, 0, 0]
+        self.throwSpeed = 0
         self.w = threading.Thread(name='commandThread', target=self.commandThread)
         self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
         print(self.ser.name)
         self.w.start()
-
-    def generateMessage(self, command, params=None):
-        if params is None:
-            self.message = command + "\r\n"
-        else:
-            self.message = command + ':' + ':'.join(params) + "\r\n"
 
     def gs(self):
         self.ser.write('gs\r\n'.encode("utf-8"))
@@ -35,21 +37,28 @@ class serialCom:
 
     # sd:left:back:right
     def forward(self, speed):
-        self.generateMessage("sd", [speed, 0, -speed])
+        self.speed = [speed, 0, -speed]
 
     def reverse(self, speed):
-        self.generateMessage("sd", [-speed, 0, speed])
+        self.speed = [-speed, 0, speed]
 
     def left(self, speed):
-        self.generateMessage("sd", [-speed, -speed, -speed])
+        self.speed = [-speed, -speed, -speed]
 
     def right(self, speed):
-        self.generateMessage("sd", [speed, speed, speed])
+        self.speed = [speed, speed, speed]
 
-    def throw(self, speed):
-        self.generateMessage("d", speed)
+    def move(self, speed):
+        self.speed = [speed[0], speed[1], speed[2]]
+
+    def startThrow(self, speed):
+        self.throwSpeed = speed
+
+    def stopThrow(self):
+        self.throwSpeed = 0
 
     def __del__(self):
-        self.running = False
         self.speed = [0, 0, 0]
+        self.throwSpeed = 0
+        self.running = False
         self.ser.close()

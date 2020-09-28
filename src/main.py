@@ -1,9 +1,10 @@
 from src import calibration, config
 from src import vision, driving
-import time
+
 import cv2
 
 parser = config.config()
+
 
 def calibrate():
     if parser.get("Params", "Calibrate"):
@@ -11,31 +12,38 @@ def calibrate():
     else:
         pass
 
-def manual_movment():
-    cv2.namedWindow("Processed")
-    obj1 = driving.SerialCom()
+
+def manual_movement():
+    cv2.namedWindow("Controller")
+    obj1 = driving.serialCom()
+    throwSpeed = 1000
+    speed = 4
     while True:
         k = cv2.waitKey(1)
         if k == ord("w"):
-            print("WWWWWWW")
-            obj1.forward(10)
+            print("Forward")
+            obj1.forward(speed)
         elif k == ord("s"):
-            print("SSSSSSSSS")
-            obj1.reverse(10)
+            print("Backward")
+            obj1.reverse(speed)
         elif k == ord("d"):
-            print("DDDDDDD")
-            obj1.right(10)
+            print("Right")
+            obj1.right(speed)
         elif k == ord("a"):
-            print("AAAAAAAAA")
-            obj1.left(10)
+            print("Left")
+            obj1.left(speed)
+        elif k == ord("t"):
+            print("Throw")
+            obj1.startThrow(throwSpeed)
+        elif k == ord("r"):
+            print("Stop throw")
+            obj1.stopThrow()
         elif k == ord("p"):
             print("Break")
+            obj1.__del__()
             break
 
-    obj1.__del__()
 
-    
 if __name__ == "__main__":
     calibrate()
-    #manual_movment()
-
+    manual_movement()

@@ -4,19 +4,22 @@ from src import config, vision
 import cv2
 
 parser = config.config()
+kernel = np.ones((2, 2), np.uint8)
+colorSelect = 'Ball'
 
-""" 
-Parameters:
-    edge = "min" or "max"
-    channel = 0, 1, 2 (H, S, V)
-    value = new slider value
-"""
+
 def update_range(edge, channel, filters, value):
+    """
+    Parameters:
+        edge = "min" or "max"
+        channel = 0, 1, 2 (H, S, V)
+        value = new slider value
+    """
     filters[edge][channel] = value
 
 
 def calibration():
-    global parser
+    global parser, colorSelect
 
     cv2.namedWindow("Processed")
 
@@ -24,8 +27,9 @@ def calibration():
 
     try:
         filters = {
-            "min": parser.get("Ball_color", "Min"),
-            "max": parser.get("Ball_color", "Max")
+            'Ball': {"min": parser.get("Ball", "Min"), "max": parser.get("Ball", "Max")},
+            'BasketBlue': {"min": parser.get("BasketBlue", "Min"), "max": parser.get("BasketBlue", "Max")},
+            'BasketMagenta': {"min": parser.get("BasketMagenta", "Min"), "max": parser.get("BasketMagenta", "Max")}
         }
     except Exception as e:
         print(e)
@@ -44,9 +48,13 @@ def calibration():
     while True:
         depth_frame, frame = image_thread.getFrame()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
         cv2.imshow("frame", frame)
 
-        mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
+        mask = cv2.inRange(hsv, tuple(filters[colorSelect]["min"]), tuple(filters[colorSelect]["max"]))
+
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.medianBlur(mask, 13)
 
         cv2.imshow("Processed", mask)
 
@@ -54,9 +62,24 @@ def calibration():
         if k == ord("q"):
             image_thread.setStopped(False)
             break
+        elif k == ord("n"):
+            inp = input('''Please choose from Options mentioned below:
+                    1. Ball
+                    2. BasketBlue
+                    3. BasketMagenta
+                    ''')
+            if int(inp) == 1:
+                colorSelect = 'Ball'
+            elif int(inp) == 2:
+                colorSelect = 'BasketBlue'
+            elif int(inp) == 3:
+                colorSelect = 'BasketMagenta'
+            else:
+                print("Only numbers are accepted. Please select right option")
+
         elif k == ord("s"):
-            for key in filters:
-                parser.set("Ball_color", key, filters[key])
+            for key in filters[colorSelect]:
+                parser.set(colorSelect, key, filters[key])
             parser.save()
             print("Last changes saved")
 
