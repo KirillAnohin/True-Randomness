@@ -8,14 +8,14 @@ kernel = np.ones((2, 2), np.uint8)
 colorSelect = 'Ball'
 
 
-def update_range(edge, channel, filters, value):
+def update_range(colorSelect, edge, channel, filters, value):
     """
     Parameters:
         edge = "min" or "max"
         channel = 0, 1, 2 (H, S, V)
         value = new slider value
     """
-    filters[edge][channel] = value
+    filters[colorSelect][edge][channel] = value
 
 
 def calibration():
@@ -38,12 +38,12 @@ def calibration():
             "max": [179, 255, 255]  # HSV maximum values
         }
 
-    cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(update_range, "min", 0, filters))
-    cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(update_range, "min", 1, filters))
-    cv2.createTrackbar("v_min", "Processed", filters["min"][2], 255, partial(update_range, "min", 2, filters))
-    cv2.createTrackbar("h_max", "Processed", filters["max"][0], 179, partial(update_range, "max", 0, filters))
-    cv2.createTrackbar("s_max", "Processed", filters["max"][1], 255, partial(update_range, "max", 1, filters))
-    cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(update_range, "max", 2, filters))
+    cv2.createTrackbar("h_min", "Processed", filters[colorSelect]["min"][0], 179, partial(update_range, colorSelect, "min", 0, filters))
+    cv2.createTrackbar("s_min", "Processed", filters[colorSelect]["min"][1], 255, partial(update_range, colorSelect, "min", 1, filters))
+    cv2.createTrackbar("v_min", "Processed", filters[colorSelect]["min"][2], 255, partial(update_range, colorSelect, "min", 2, filters))
+    cv2.createTrackbar("h_max", "Processed", filters[colorSelect]["max"][0], 179, partial(update_range, colorSelect, "max", 0, filters))
+    cv2.createTrackbar("s_max", "Processed", filters[colorSelect]["max"][1], 255, partial(update_range, colorSelect, "max", 1, filters))
+    cv2.createTrackbar("v_max", "Processed", filters[colorSelect]["max"][2], 255, partial(update_range, colorSelect, "max", 2, filters))
 
     while True:
         depth_frame, frame = image_thread.getFrame()
@@ -70,16 +70,19 @@ def calibration():
                     ''')
             if int(inp) == 1:
                 colorSelect = 'Ball'
+                print("Selected Ball")
             elif int(inp) == 2:
                 colorSelect = 'BasketBlue'
+                print("Selected BasketBlue")
             elif int(inp) == 3:
                 colorSelect = 'BasketMagenta'
+                print("Selected BasketMagenta")
             else:
                 print("Only numbers are accepted. Please select right option")
 
         elif k == ord("s"):
             for key in filters[colorSelect]:
-                parser.set(colorSelect, key, filters[key])
+                parser.set(colorSelect, key, filters[colorSelect][key])
             parser.save()
             print("Last changes saved")
 

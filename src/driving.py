@@ -7,10 +7,11 @@ class serialCom:
 
     def commandThread(self):
         while self.running:
-            print(self.gs)
 
             drive = ("sd:" + str(self.speed[0]) + ":" + str(self.speed[1]) + ":" + str(self.speed[2]) + "\r\n")
             throw = ("d:" + str(self.throwSpeed) + "\r\n")
+
+            print(drive)
 
             self.ser.write(drive.encode("utf-8"))
 

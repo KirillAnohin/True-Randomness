@@ -1,5 +1,10 @@
+from collections import deque
+
+import imutils as imutils
+from pip._vendor.certifi.__main__ import args
+
 from src import calibration, config
-from src import vision, driving
+from src import vision, driving, imageProcessing
 
 import cv2
 
@@ -11,6 +16,35 @@ def calibrate():
         calibration.calibration()
     else:
         pass
+
+
+def detect():
+    center = None
+    cv2.namedWindow("Processed")
+    image_thread = vision.imageCapRS2()
+    obj1 = driving.serialCom()
+
+    while True:
+        depth_frame, frame = image_thread.getFrame()
+        cnts = imageProcessing.getContours(frame)
+        x, y = imageProcessing.detectObj(frame, cnts)
+        cv2.imshow('Processed', frame)
+        k = cv2.waitKey(1)
+
+        if x > parser.get('Cam', 'Width')/2 + 5:
+            obj1.right(4)
+        elif x < parser.get('Cam', 'Width')/2 - 5:
+            obj1.left(4)
+
+        k = cv2.waitKey(1)
+        if k == ord("q"):
+            image_thread.setStopped(False)
+            obj1.__del__()
+            break
+
+    cv2.destroyAllWindows()
+
+
 
 
 def manual_movement():
@@ -45,5 +79,6 @@ def manual_movement():
 
 
 if __name__ == "__main__":
-    calibrate()
-    manual_movement()
+    #calibrate()
+    detect()
+    #manual_movement()

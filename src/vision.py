@@ -40,7 +40,7 @@ class imageCapRS2:
         self.frames = self.pipeline.wait_for_frames()
         self.color_frame = self.frames.get_color_frame()
         self.currentFrame = np.asanyarray(self.color_frame.get_data())
-        Thread(name="commandThread", target=self.commandThread).start()
+        Thread(name="commandThreadd", target=self.commandThread).start()
 
     def getFrame(self):
         return self.depth_image, self.currentFrame
