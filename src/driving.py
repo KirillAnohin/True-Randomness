@@ -1,6 +1,8 @@
+import sys
 import threading
 import time
 import serial
+import serial.tools.list_ports
 
 
 class serialCom:
@@ -22,12 +24,14 @@ class serialCom:
             while self.ser.inWaiting() > 0:
                 self.ser.read()
 
-    def __init__(self):
+    def __init__(self, port):
+        self.port = ""
+        self.availablePorts(port)
         self.running = True
         self.speed = [0, 0, 0]
         self.throwSpeed = 0
         self.w = threading.Thread(name='commandThread', target=self.commandThread)
-        self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
+        self.ser = serial.Serial(('/dev/' + self.port), 115200, timeout=0.01)
         print(self.ser.name)
         self.w.start()
 
@@ -35,6 +39,17 @@ class serialCom:
         self.ser.write('gs\r\n'.encode("utf-8"))
         response = self.ser.read(20).decode("utf-8")
         return response
+
+    def availablePorts(self, port):
+        try:
+            ports = serial.tools.list_ports.comports()
+            for p in ports:
+                print("a")
+                if p == port:
+                    self.port = port
+        except Exception as e:
+            print(e)
+            sys.exit()
 
     # sd:left:back:right
     def forward(self, speed):

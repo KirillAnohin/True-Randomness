@@ -1,4 +1,6 @@
 import configparser
+from configparser import ConfigParser, NoSectionError, NoOptionError
+from pathlib import Path
 from ast import literal_eval
 from pathlib import Path
 
@@ -10,20 +12,20 @@ class config:
         self.parser = configparser.ConfigParser()
         self.parser.read(self.root_dir.joinpath(self.config_path))
 
-    def get(self, section, key):
+    def get(self, section, key, default=None):
         try:
             return literal_eval(self.parser.get(section, key))
-        except Exception as e:
-            print(e)
+        except NoSectionError:
+            return default
+        except NoOptionError:
+            return default
 
     def set(self, section, key, value):
         try:
             self.parser.set(section, key, repr(value))
-        except configparser.NoSectionError:
+        except NoSectionError:
             self.parser.add_section(section)
             self.parser.set(section, key, repr(value))
-        except Exception as e:
-            print(e)
 
     def save(self):
         with open(self.root_dir.joinpath(self.config_path), "w") as file:

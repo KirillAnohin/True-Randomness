@@ -5,12 +5,13 @@ from src import config
 
 parser = config.config()
 kernel = np.ones((2, 2), np.uint8)
+teamColor = ""
 
-filters = {
-    'Ball': {"min": parser.get("Ball", "Min"), "max": parser.get("Ball", "Max")},
-    'BasketBlue': {"min": parser.get("BasketBlue", "Min"), "max": parser.get("BasketBlue", "Max")},
-    'BasketMagenta': {"min": parser.get("BasketMagenta", "Min"), "max": parser.get("BasketMagenta", "Max")}
-}
+# filters = {
+#     'Ball': {"min": parser.get("Ball", "Min"), "max": parser.get("Ball", "Max")},
+#     'BasketBlue': {"min": parser.get("BasketBlue", "Min"), "max": parser.get("BasketBlue", "Max")},
+#     'BasketMagenta': {"min": parser.get("BasketMagenta", "Min"), "max": parser.get("BasketMagenta", "Max")}
+# }
 
 def detectObj(frame, cnts):
     if len(cnts) > 0:
@@ -32,6 +33,7 @@ def detectObj(frame, cnts):
 
 
 def getContours(frame):
+    global teamColor
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     maskBall = cv2.inRange(hsv, tuple(filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
     maskBall = cv2.morphologyEx(maskBall, cv2.MORPH_OPEN, kernel)
