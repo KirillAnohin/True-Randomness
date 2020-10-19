@@ -28,8 +28,8 @@ def calibrate():
 
     try:
         filters = {
-            "min": [parser.get(color_name, "min")],
-            "max": [parser.get(color_name, "max")]
+            "min": parser.get(color_name, "min"),
+            "max": parser.get(color_name, "max")
         }
     except Exception as e:
         filters = {

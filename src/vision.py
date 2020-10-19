@@ -46,5 +46,5 @@ class imageCapRS2:
         return self.depth_image, self.currentFrame
 
     def setStopped(self, stopped):
-        self.pipeline.stop()
         self.running = stopped
+        self.pipeline.stop()

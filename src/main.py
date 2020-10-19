@@ -8,8 +8,8 @@ import cv2
 
 parser = config.config()
 
+
 def detect():
-    center = None
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
     obj1 = driving.serialCom()
@@ -17,30 +17,30 @@ def detect():
     while True:
         depth_frame, frame = image_thread.getFrame()
         cnts = imageProcessing.getContours(frame)
-        x, y = imageProcessing.detectObj(frame, cnts)
         cv2.imshow('Processed', frame)
-        k = cv2.waitKey(1)
-
-        if x > parser.get('Cam', 'Width')/2 + 5:
-            obj1.right(4)
-        elif x < parser.get('Cam', 'Width')/2 - 5:
+        if len(cnts) > 0:
+            x, y = imageProcessing.detectObj(frame, cnts)
+            if x > 210 and x < 480 :
+                obj1.move([0,0,0])
+            elif x > parser.get('Cam', 'Width') / 2 + 30:
+                obj1.right(4)
+            elif x < parser.get('Cam', 'Width') / 2 - 30:
+                obj1.left(4)
+        else:
             obj1.left(4)
-
         k = cv2.waitKey(1)
         if k == ord("q"):
-            image_thread.setStopped(False)
-            obj1.__del__()
             break
 
+    image_thread.setStopped(False)
+    obj1.setStopped(False)
     cv2.destroyAllWindows()
-
-
 
 
 def manual_movement():
     cv2.namedWindow("Controller")
-    obj1 = driving.serialCom("ttyAMC0")
-    throwSpeed = 1000
+    obj1 = driving.serialCom()
+    throwSpeed = 200
     speed = 4
     while True:
         k = cv2.waitKey(1)
@@ -62,12 +62,13 @@ def manual_movement():
         elif k == ord("r"):
             print("Stop throw")
             obj1.stopThrow()
-        elif k == ord("p"):
+        elif k == ord("q"):
             print("Break")
-            obj1.__del__()
             break
+
+    obj1.setStopped(False)
 
 
 if __name__ == "__main__":
     detect()
-    manual_movement()
+    #manual_movement()

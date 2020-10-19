@@ -7,11 +7,11 @@ parser = config.config()
 kernel = np.ones((2, 2), np.uint8)
 teamColor = ""
 
-# filters = {
-#     'Ball': {"min": parser.get("Ball", "Min"), "max": parser.get("Ball", "Max")},
-#     'BasketBlue': {"min": parser.get("BasketBlue", "Min"), "max": parser.get("BasketBlue", "Max")},
-#     'BasketMagenta': {"min": parser.get("BasketMagenta", "Min"), "max": parser.get("BasketMagenta", "Max")}
-# }
+filters = {
+    'Ball': {"min": parser.get("Ball", "Min"), "max": parser.get("Ball", "Max")},
+    'BasketBlue': {"min": parser.get("BasketBlue", "Min"), "max": parser.get("BasketBlue", "Max")},
+    'BasketMagenta': {"min": parser.get("BasketMagenta", "Min"), "max": parser.get("BasketMagenta", "Max")}
+}
 
 def detectObj(frame, cnts):
     if len(cnts) > 0:
@@ -29,7 +29,7 @@ def detectObj(frame, cnts):
             cv2.putText(frame, str(center), center, cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
             cv2.putText(frame, str(round((radius ** 2) * 3.14)), (center[0] + 200, center[1]),
                         cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
-    return x, y
+        return x, y
 
 
 def getContours(frame):
@@ -47,4 +47,5 @@ def getContours(frame):
     # cv2.imshow("Processed", maskCombo)
 
     cnts = cv2.findContours(maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    print(cnts)
     return cnts
