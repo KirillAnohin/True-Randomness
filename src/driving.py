@@ -22,6 +22,7 @@ class serialCom:
 
     def __init__(self):
         self.running = True
+        self.forward_movement_angle = 90
         self.middle_wheel_angle = 0
         self.right_wheel_angle = 120
         self.left_wheel_angle = 240
@@ -36,7 +37,7 @@ class serialCom:
         response = self.ser.read(20).decode("utf-8")
         print(response)
 
-    # sd:left:back:right
+    # sd:right:middle:left
     def forward(self, speed):
         self.speed = [-speed, 0, speed]
 
@@ -58,14 +59,22 @@ class serialCom:
     def stopThrow(self):
         self.throwSpeed = 100
 
-    def wheelLinearVelocity(self, robotSpeed, robotDirectionAngle, wheelAngle):
-        wheelLinearVelocity = robotSpeed * math.cos(robotDirectionAngle - wheelAngle) #+ wheelDistanceFromCenter * robotAngularVelocity
+    def calcDirectionAngle(self, X, Y):
+        robotDirectionAngle = math.degrees(math.atan2(self.forward_movement_angle-Y, X))
+        return robotDirectionAngle
+
+    def wheelLinearVelocity(self, robotSpeed, wheelAngle, robotDirectionAngle, X=None, Y=None):
+        if Y != None and Y != 0:
+            robotDirectionAngle = self.calcDirectionAngle(X, Y)
+            wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
+        else:
+            wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         return int(wheelLinearVelocity)
 
-    def moveVertical(self, speed):
-        self.speed[0] = -self.wheelLinearVelocity(speed, self.right_wheel_angle, 90)
-        self.speed[1] = self.wheelLinearVelocity(speed, self.middle_wheel_angle, 90)
-        self.speed[2] = -self.wheelLinearVelocity(speed, self.left_wheel_angle, 90)
+    def moveDirection(self, speed, angle):
+        self.speed[0] = self.wheelLinearVelocity(-speed, self.right_wheel_angle, angle)
+        self.speed[1] = self.wheelLinearVelocity(-speed, self.middle_wheel_angle, angle)
+        self.speed[2] = self.wheelLinearVelocity(-speed, self.left_wheel_angle, angle)
 
     def setStopped(self, stopped):
         self.running = stopped

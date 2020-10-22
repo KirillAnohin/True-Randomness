@@ -70,5 +70,5 @@ def manual_movement():
 
 
 if __name__ == "__main__":
-    detect()
-    #manual_movement()
+    #detect()
+    manual_movement()
