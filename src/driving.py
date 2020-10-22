@@ -1,3 +1,4 @@
+import math
 import threading
 import time
 import serial
@@ -21,6 +22,9 @@ class serialCom:
 
     def __init__(self):
         self.running = True
+        self.middle_wheel_angle = 0
+        self.right_wheel_angle = 120
+        self.left_wheel_angle = 240
         self.throwSpeed, self.speed = 100, [0, 0, 0]
         self.w = threading.Thread(name='commandThread', target=self.commandThread)
         self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
@@ -54,8 +58,18 @@ class serialCom:
     def stopThrow(self):
         self.throwSpeed = 100
 
+    def wheelLinearVelocity(self, robotSpeed, robotDirectionAngle, wheelAngle):
+        wheelLinearVelocity = robotSpeed * math.cos(robotDirectionAngle - wheelAngle) #+ wheelDistanceFromCenter * robotAngularVelocity
+        return int(wheelLinearVelocity)
+
+    def moveVertical(self, speed):
+        self.speed[0] = -self.wheelLinearVelocity(speed, self.right_wheel_angle, 90)
+        self.speed[1] = self.wheelLinearVelocity(speed, self.middle_wheel_angle, 90)
+        self.speed[2] = -self.wheelLinearVelocity(speed, self.left_wheel_angle, 90)
+
     def setStopped(self, stopped):
         self.running = stopped
         time.sleep(0.2)
         self.throwSpeed, self.speed = 0, [0, 0, 0]
         self.ser.close()
+

@@ -41,12 +41,12 @@ def manual_movement():
     cv2.namedWindow("Controller")
     obj1 = driving.serialCom()
     throwSpeed = 200
-    speed = 4
+    speed = 10
     while True:
         k = cv2.waitKey(1)
         if k == ord("w"):
             print("Forward")
-            obj1.forward(speed)
+            obj1.moveVertical(speed)
         elif k == ord("s"):
             print("Backward")
             obj1.reverse(speed)
