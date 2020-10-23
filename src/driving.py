@@ -62,22 +62,22 @@ class serialCom:
     def stopMoving(self):
         self.speed = [0, 0, 0]
 
-    def calcDirectionAngle(self, robotDirectionAngle, X, Y):
-        robotDirectionAngle = int(math.degrees(math.atan((self.forward_movement_angle-X) / Y) + robotDirectionAngle))
+    def calcDirectionAngle(self, robotDirectionAngle, middle_px, X, Y):
+        robotDirectionAngle = int(math.degrees(math.atan((middle_px-X) / Y) + robotDirectionAngle))
         return robotDirectionAngle
 
-    def wheelLinearVelocity(self, robotSpeed, wheelAngle, robotDirectionAngle, X=None, Y=None):
+    def wheelLinearVelocity(self, robotSpeed, wheelAngle, robotDirectionAngle, middle_px=None, X=None, Y=None):
         if Y is not None and Y != 0:
-            robotDirectionAngle = self.calcDirectionAngle(robotDirectionAngle, X, Y)
+            robotDirectionAngle = self.calcDirectionAngle(robotDirectionAngle, middle_px, X, Y)
             wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         else:
             wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         return int(wheelLinearVelocity)
 
-    def omniDirection(self, speed, angle, X=None, Y=None):
-        self.speed[0] = self.wheelLinearVelocity(-speed, self.right_wheel_angle, angle, X, Y)
-        self.speed[1] = self.wheelLinearVelocity(-speed, self.middle_wheel_angle, angle, X, Y)
-        self.speed[2] = self.wheelLinearVelocity(-speed, self.left_wheel_angle, angle, X, Y)
+    def omniMovement(self, speed, middle_px, X=None, Y=None):
+        self.speed[0] = self.wheelLinearVelocity(-speed, self.right_wheel_angle, self.forward_movement_angle, middle_px, X, Y)
+        self.speed[1] = self.wheelLinearVelocity(-speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y)
+        self.speed[2] = self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y)
 
     def setStopped(self, stopped):
         self.running = stopped

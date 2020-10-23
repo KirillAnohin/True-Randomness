@@ -4,7 +4,7 @@ from src import config, vision
 import cv2
 
 parser = config.config()
-kernel = np.ones((2, 2), np.uint8)
+kernel = np.ones((3, 3), np.uint8)
 
 
 def update_range(edge, channel, filters, value):
@@ -22,6 +22,7 @@ def calibrate():
 
     print("Available objects: Ball, BasketBlue, BasketMagenta")
     color_name = input("Enter color name: ")
+
 
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
@@ -47,13 +48,15 @@ def calibrate():
     while True:
         depth_frame, frame = image_thread.getFrame()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        #mask = cv2.medianBlur(hsv, 7)
 
         cv2.imshow("frame", frame)
 
         mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
 
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-        mask = cv2.medianBlur(mask, 13)
+        #mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.erode(mask, np.ones((2, 2), np.uint8), iterations=1)
+        mask = cv2.dilate(mask, kernel, iterations=3)
 
         cv2.imshow("Processed", mask)
 

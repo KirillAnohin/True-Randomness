@@ -4,7 +4,7 @@ import numpy as np
 import pyrealsense2 as rs
 
 import config
-import realsense_config
+from src import config, realsense_config
 
 
 # TODO: add a depth stream and a method for returning depth data
@@ -17,6 +17,7 @@ class imageCapRS2:
             self.frames = self.pipeline.wait_for_frames()
             self.depth_image = self.frames.get_depth_frame()
             self.color_frame = self.frames.get_color_frame()
+            self.depth_frame = self.depth_image.as_depth_frame()
             self.currentFrame = np.asanyarray(self.color_frame.get_data())
 
     def __init__(self, src=0):
@@ -24,7 +25,7 @@ class imageCapRS2:
         realsense_config.configure()
         # create initial variables for use in methods
         self.running = True
-        self.depth_image = None
+        self.depth_frame = None
         self.currentFrame = None
 
         # create and start the pipeline with a color image stream
@@ -43,7 +44,7 @@ class imageCapRS2:
         Thread(name="commandThreadd", target=self.commandThread).start()
 
     def getFrame(self):
-        return self.depth_image, self.currentFrame
+        return self.depth_frame, self.currentFrame
 
     def setStopped(self, stopped):
         self.running = stopped

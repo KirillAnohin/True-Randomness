@@ -4,7 +4,7 @@ import numpy as np
 from src import config
 
 parser = config.config()
-kernel = np.ones((2, 2), np.uint8)
+kernel = np.ones((3, 3), np.uint8)
 teamColor = ""
 
 filters = {
@@ -15,6 +15,7 @@ filters = {
 
 
 def detectObj(frame, cnts):
+
     if len(cnts) > 0:
         c = max(cnts, key=cv2.contourArea)
         ((x, y), radius) = cv2.minEnclosingCircle(c)
@@ -32,15 +33,21 @@ def detectObj(frame, cnts):
                 cv2.putText(frame, str(center), center, cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
                 cv2.putText(frame, str(round((radius ** 2) * 3.14)), (center[0] + 200, center[1]),
                             cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
-        return x, y
+    else:
+        x, y = -1, -1
+
+    return x, y
 
 
 def getContours(frame):
     global teamColor
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    # maskBall = cv2.medianBlur(hsv, 7)
     maskBall = cv2.inRange(hsv, tuple(filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
     maskBall = cv2.morphologyEx(maskBall, cv2.MORPH_OPEN, kernel)
-    maskBall = cv2.medianBlur(maskBall, 13)
+    maskBall = cv2.dilate(maskBall, kernel, iterations=2)
+
+    cv2.imshow("cc", maskBall)
 
     # cv2.imshow("cnts", maskBall)
 
@@ -50,5 +57,4 @@ def getContours(frame):
     # cv2.imshow("Processed", maskCombo)
 
     cnts = cv2.findContours(maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    print(cnts)
     return cnts
