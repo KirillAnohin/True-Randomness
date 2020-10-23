@@ -31,12 +31,11 @@ def calibrate():
             "min": parser.get(color_name, "min"),
             "max": parser.get(color_name, "max")
         }
-    except Exception as e:
+    except KeyError:
         filters = {
             "min": [0, 0, 0],  # HSV minimum values
             "max": [179, 255, 255]  # HSV maximum values
         }
-        print(e)
 
     cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(update_range, "min", 0, filters))
     cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(update_range, "min", 1, filters))
@@ -60,13 +59,13 @@ def calibrate():
 
         k = cv2.waitKey(1)
         if k == ord("q"):
-            image_thread.setStopped(False)
             break
 
     for key in filters:
         parser.set(color_name, key, filters[key])
     parser.save()
 
+    image_thread.setStopped(False)
     cv2.destroyAllWindows()
 
 

@@ -59,22 +59,25 @@ class serialCom:
     def stopThrow(self):
         self.throwSpeed = 100
 
-    def calcDirectionAngle(self, X, Y):
-        robotDirectionAngle = math.degrees(math.atan2(self.forward_movement_angle-Y, X))
+    def stopMoving(self):
+        self.speed = [0, 0, 0]
+
+    def calcDirectionAngle(self, robotDirectionAngle, X, Y):
+        robotDirectionAngle = int(math.degrees(math.atan((self.forward_movement_angle-X) / Y) + robotDirectionAngle))
         return robotDirectionAngle
 
     def wheelLinearVelocity(self, robotSpeed, wheelAngle, robotDirectionAngle, X=None, Y=None):
-        if Y != None and Y != 0:
-            robotDirectionAngle = self.calcDirectionAngle(X, Y)
+        if Y is not None and Y != 0:
+            robotDirectionAngle = self.calcDirectionAngle(robotDirectionAngle, X, Y)
             wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         else:
             wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         return int(wheelLinearVelocity)
 
-    def moveDirection(self, speed, angle):
-        self.speed[0] = self.wheelLinearVelocity(-speed, self.right_wheel_angle, angle)
-        self.speed[1] = self.wheelLinearVelocity(-speed, self.middle_wheel_angle, angle)
-        self.speed[2] = self.wheelLinearVelocity(-speed, self.left_wheel_angle, angle)
+    def omniDirection(self, speed, angle, X=None, Y=None):
+        self.speed[0] = self.wheelLinearVelocity(-speed, self.right_wheel_angle, angle, X, Y)
+        self.speed[1] = self.wheelLinearVelocity(-speed, self.middle_wheel_angle, angle, X, Y)
+        self.speed[2] = self.wheelLinearVelocity(-speed, self.left_wheel_angle, angle, X, Y)
 
     def setStopped(self, stopped):
         self.running = stopped
