@@ -1,9 +1,5 @@
-from collections import deque
-from pip._vendor.certifi.__main__ import args
-
-from manutal_movement import manual_movement
-from src import calibration, config
-from src import vision, driving, imageProcessing, manutal_movement
+from src import config
+from src import vision, driving, imageProcessing, manual_movement
 
 import cv2
 

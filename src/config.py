@@ -1,6 +1,5 @@
 import configparser
-from configparser import ConfigParser, NoSectionError, NoOptionError
-from pathlib import Path
+from configparser import NoSectionError, NoOptionError
 from ast import literal_eval
 from pathlib import Path
 
