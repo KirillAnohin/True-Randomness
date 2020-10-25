@@ -6,10 +6,13 @@ ThrowSpeed = 200
 Speed = 10
 
 def manual_movement():
+
     cv2.namedWindow("Controller")
     obj1 = driving.serialCom()
+
     while True:
-        k = cv2.waitKey(1)
+        k = cv2.waitKey(1) & 0xFF
+
         if k == ord("w"):
             print("Forward")
             obj1.moveVertical(Speed)

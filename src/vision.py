@@ -15,8 +15,8 @@ class imageCapRS2:
     def commandThread(self):
         while self.running:
             self.frames = self.pipeline.wait_for_frames()
-            self.depth_image = self.frames.get_depth_frame()
             self.color_frame = self.frames.get_color_frame()
+            self.depth_image = self.frames.get_depth_frame()
             self.depth_frame = self.depth_image.as_depth_frame()
             self.currentFrame = np.asanyarray(self.color_frame.get_data())
 
@@ -39,7 +39,9 @@ class imageCapRS2:
 
         # initialize the values for the frame related variables
         self.frames = self.pipeline.wait_for_frames()
+        self.depth_image = self.frames.get_depth_frame()
         self.color_frame = self.frames.get_color_frame()
+        self.depth_frame = self.depth_image.as_depth_frame()
         self.currentFrame = np.asanyarray(self.color_frame.get_data())
         Thread(name="commandThreadd", target=self.commandThread).start()
 

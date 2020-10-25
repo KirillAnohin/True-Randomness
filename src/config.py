@@ -26,6 +26,12 @@ class config:
             self.parser.add_section(section)
             self.parser.set(section, key, repr(value))
 
+    def checkSection(self, section, default=None):
+        try:
+            return self.parser.has_section(section)
+        except NoSectionError:
+            return default
+
     def save(self):
         with open(self.root_dir.joinpath(self.config_path), "w") as file:
             self.parser.write(file)

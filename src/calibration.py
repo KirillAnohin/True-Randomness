@@ -20,9 +20,15 @@ def update_range(edge, channel, filters, value):
 def calibrate():
     global parser
 
-    print("Available objects: Ball, BasketBlue, BasketMagenta")
-    color_name = input("Enter color name: ")
-
+    while True:
+        try:
+            print("Available objects: Ball, BasketBlue, BasketMagenta")
+            color_name = input("Enter color name: ")
+            parser.checkSection(color_name)
+        except None:
+            continue
+        else:
+            break
 
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
@@ -60,7 +66,7 @@ def calibrate():
 
         cv2.imshow("Processed", mask)
 
-        k = cv2.waitKey(1)
+        k = cv2.waitKey(1) & 0xFF
         if k == ord("q"):
             break
 

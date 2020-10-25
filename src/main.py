@@ -7,32 +7,34 @@ parser = config.config()
 
 
 def automotive_movement():
+
     cv2.namedWindow("Processed")
-    cv2.namedWindow("cc")
+
     image_thread = vision.imageCapRS2()
     robot = driving.serialCom()
 
     while True:
+
         depth_frame, frame = image_thread.getFrame()
+        ballCnts, basketCnts = imageProcessing.getContours(frame)
 
-        cnts = imageProcessing.getContours(frame)
-        x, y = imageProcessing.detectObj(frame, cnts)
+        if len(basketCnts) > 0:
+            basketX, basketY, w, h = imageProcessing.detectObj(frame, ballcnts, False)
 
-        cv2.imshow('Processed', frame)
-        print("X:", x)
-        print("Y:", y)
-
-        if x == -1:
-            robot.right(10)
-        else:
-            middle_px = parser.get('Cam', 'Width') / 2 - 10
-            robot.omniMovement(20, middle_px, int(x), int(y))
+        if len(ballCnts) > 0 :
+            ballX, ballY = imageProcessing.detectObj(frame, ballcnts)
+            if ballX != -1:
+                middle_px = parser.get('Cam', 'Width') / 2 - 10
+                robot.omniMovement(20, middle_px, int(x), int(y))
+            else:
+                robot.right(10)
 
         #angle = obj1.calcDirectionAngle(90, x, y)
         # if x != -1 and depth_frame is not None:
         #     print("distance: ", depth_frame.get_distance(int(x), int(y)))
 
-        k = cv2.waitKey(1)
+        cv2.imshow('Processed', frame)
+        k = cv2.waitKey(1) & 0xFF
         if k == ord("q"):
             break
 
