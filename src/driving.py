@@ -59,6 +59,9 @@ class serialCom:
     def stopThrow(self):
         self.throwSpeed = 100
 
+    def circleBallLeft(self, speed):
+        self.speed = [-speed, 0, 0]
+
     def stopMoving(self):
         self.speed = [0, 0, 0]
 

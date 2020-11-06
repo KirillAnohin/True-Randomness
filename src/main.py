@@ -1,5 +1,6 @@
 from src import config
 from src import vision, driving, imageProcessing, manual_movement
+from simple_pid import PID
 
 import cv2
 
@@ -12,6 +13,8 @@ def automotive_movement():
 
     image_thread = vision.imageCapRS2()
     robot = driving.serialCom()
+    PID.output_limits(-30, 30)
+    middle_px = parser.get('Cam', 'Width') / 2 + 12
 
     while True:
 
@@ -19,19 +22,20 @@ def automotive_movement():
         ballCnts, basketCnts = imageProcessing.getContours(frame)
 
         if len(basketCnts) > 0:
-            basketX, basketY, w, h = imageProcessing.detectObj(frame, ballcnts, False)
+            basketX, basketY, w, h = imageProcessing.detectObj(frame, basketCnts, False)
 
-        if len(ballCnts) > 0 :
-            ballX, ballY = imageProcessing.detectObj(frame, ballcnts)
+        if len(ballCnts) > 0:
+            ballX, ballY = imageProcessing.detectObj(frame, ballCnts)
+            distance = imageProcessing.getDistance(depth_frame, ballX, ballY)
+
+            if distance <= 10:
+                break
+
             if ballX != -1:
-                middle_px = parser.get('Cam', 'Width') / 2 - 10
-                robot.omniMovement(20, middle_px, int(x), int(y))
+                PID()
+                robot.omniMovement(20, middle_px, ballX, ballY)
             else:
                 robot.right(10)
-
-        #angle = obj1.calcDirectionAngle(90, x, y)
-        # if x != -1 and depth_frame is not None:
-        #     print("distance: ", depth_frame.get_distance(int(x), int(y)))
 
         cv2.imshow('Processed', frame)
         k = cv2.waitKey(1) & 0xFF
