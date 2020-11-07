@@ -21,14 +21,13 @@ def calibrate():
     global parser
 
     while True:
-        try:
-            print("Available objects: Ball, BasketBlue, BasketMagenta")
-            color_name = input("Enter color name: ")
-            parser.checkSection(color_name)
-        except None:
-            continue
-        else:
+        print("Available objects: Ball, BasketBlue, BasketMagenta")
+        color_name = input("Enter color name: ")
+        status = parser.checkSection(color_name)
+        print(status)
+        if status:
             break
+
 
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()

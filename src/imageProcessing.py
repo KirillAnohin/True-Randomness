@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-
 from src import config
 
 parser = config.config()
@@ -10,6 +9,8 @@ MIN_BALL_AREA = parser.get("Params", "min_ball_area")
 MIN_BASKET_AREA = parser.get("Params", "min_basket_area")
 
 teamColor = parser.get("Game", "team")
+W = 16
+F = (59 * 151) / W
 
 filters = {
     'Ball': {"min": parser.get("Ball", "min"), "max": parser.get("Ball", "max")},
@@ -48,27 +49,28 @@ def detectObj(frame, cnts, isBall=True):
             return -1, -1, -1, -1
         else:
             M = cv2.moments(c)
+            rect = cv2.minAreaRect(c)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
 
-            if M["m00"] > 0:
-                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
 
             (x, y, w, h) = cv2.boundingRect(c)
-
-            if h >= 15:
-                # cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
+            # print("Basket size: ", w*h)
+            # print("wh " + str(w*h))
+            if h >= 5 and (w * h >= 800):
+                print(w*h)
+                cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
                 cv2.putText(frame, "Laius: " + str(round(w)), (10, 300), cv2.FONT_HERSHEY_DUPLEX, 1,
                             cv2.COLOR_YUV420sp2GRAY)
+                return x, y, w, h
+            else:
+                return -1, -1, -1, -1
 
-            return x, y, w, h
-
-
-def getDistance(depthFrame, ballX, ballY):
-    if depthFrame is not None:
-        distance = depthFrame.get_distance(ballX, ballY) * 100
-        return distance
-    else:
-        return -1
-
+def calc_distance(width):
+    distance = round((W * F) / width, 2)
+    return distance
 
 def getContours(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -82,6 +84,7 @@ def getContours(frame):
     maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
 
     maskCombo = cv2.add(maskBall, maskBasket)
+
     cv2.imshow("Processed", maskCombo)
 
     ballcnts = cv2.findContours(maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
