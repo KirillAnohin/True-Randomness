@@ -58,10 +58,8 @@ def calibrate():
         cv2.imshow("frame", frame)
 
         mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
-
-        #mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-        mask = cv2.erode(mask, np.ones((2, 2), np.uint8), iterations=1)
-        mask = cv2.dilate(mask, kernel, iterations=3)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.dilate(mask, kernel, iterations=2)
 
         cv2.imshow("Processed", mask)
 

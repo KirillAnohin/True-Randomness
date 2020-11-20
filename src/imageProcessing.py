@@ -82,6 +82,8 @@ def getContours(frame):
 
     maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
     maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
+    #maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
+    maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
 
     maskCombo = cv2.add(maskBall, maskBasket)
 

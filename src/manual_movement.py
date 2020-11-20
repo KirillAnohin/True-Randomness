@@ -36,3 +36,4 @@ def manual_movement():
             break
 
     obj1.setStopped(False)
+    cv2.destroyAllWindows()
