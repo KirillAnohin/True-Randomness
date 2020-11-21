@@ -15,7 +15,7 @@ def manual_movement():
 
         if k == ord("w"):
             print("Forward")
-            obj1.moveVertical(Speed)
+            obj1.forward(Speed)
         elif k == ord("s"):
             print("Backward")
             obj1.reverse(Speed)

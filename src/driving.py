@@ -90,7 +90,7 @@ class serialCom:
 
     def setStopped(self, stopped):
         self.running = stopped
-        time.sleep(0.2)
         self.throwSpeed, self.speed = 0, [0, 0, 0]
+        time.sleep(0.2)
         self.ser.close()
 

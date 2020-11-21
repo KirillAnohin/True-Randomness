@@ -1,7 +1,8 @@
 import time
 
 from src import config
-from src import vision, driving, imageProcessing, manual_movement
+from src import vision, driving, imageProcessing
+from src import manual_movement
 from simple_pid import PID
 
 import cv2
@@ -12,9 +13,35 @@ parser = config.config()
 # PID.output_limits(-30, 30)
 
 
+def throwStrength(distance, throwStrengths):
+    distance = distance - 10
+    for pair in throwStrengths:
+        if distance == pair[0]:
+            print("found equal distance")
+            return pair[1]
+        if distance < pair[0] and throwStrengths.index(pair) != 0:
+            previous = throwStrengths[throwStrengths.index(pair) - 1]
+            return previous[1] + (pair[1] - previous[1]) / 2
+        elif throwStrengths.index(pair) == 0 and distance < pair[0]:
+            return throwStrengths[0][1]
+    return 250
+
+def readThrowerFile(failname):
+    fail = open(failname)
+    andmed = []
+    for rida in fail:
+        jupp = rida.strip().split(",")
+        distance = float(jupp[0])
+        speed = float(jupp[1])
+        andmed.append((distance, speed))
+    fail.close()
+    return andmed
+
+
 def automotive_movement():
     cv2.namedWindow("Processed")
 
+    throwerSpeeds = readThrowerFile("measurements.csv")
     image_thread = vision.imageCapRS2()
     robot = driving.serialCom()
     middle_px = parser.get('Cam', 'Width') / 2 + 12
@@ -55,11 +82,13 @@ def automotive_movement():
 
                 # print("basket from center", basket_dist_from_centerX)
                 if 4 > basket_dist_from_centerX > -2:
+                    distance = imageProcessing.calc_distance(w)
+                    ThrowSpeed = throwStrength(distance, throwerSpeeds)
                     robot.stopMoving()
-                    robot.startThrow(180)
+                    robot.startThrow(ThrowSpeed)
                     time.sleep(0.1)
-                    robot.forward(40)
-                    time.sleep(1.5)
+                    robot.forward(90)
+                    time.sleep(0.5)
                     robot.stopThrow()
                     throwing = False
                     continue
@@ -90,6 +119,6 @@ def automotive_movement():
 
 if __name__ == "__main__":
     if parser.get("Params", "manual"):
-        manual_movement()
+        manual_movement.manual_movement()
     else:
         automotive_movement()
