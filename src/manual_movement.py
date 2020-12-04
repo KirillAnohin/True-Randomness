@@ -1,6 +1,6 @@
 import cv2
 
-from src import driving
+from src import serialCom
 
 ThrowSpeed = 200
 Speed = 10
@@ -8,7 +8,7 @@ Speed = 10
 def manual_movement():
 
     cv2.namedWindow("Controller")
-    obj1 = driving.serialCom()
+    obj1 = serialCom.serialCom()
 
     while True:
         k = cv2.waitKey(1) & 0xFF

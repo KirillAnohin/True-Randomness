@@ -1,6 +1,6 @@
 import cv2
 
-from src import driving, imageProcessing, vision
+from src import serialCom, imageProcessing, vision
 
 ThrowSpeed = 200
 
@@ -8,7 +8,7 @@ def measurement():
     global ThrowSpeed
 
     cv2.namedWindow("Processed")
-    obj1 = driving.serialCom()
+    obj1 = serialCom.serialCom()
     image_thread = vision.imageCapRS2()
     distances = []
     finaldistance = 0
