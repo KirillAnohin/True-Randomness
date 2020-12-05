@@ -2,6 +2,9 @@ import math
 import threading
 import time
 import serial
+import json
+import asyncio
+import websockets
 
 
 class serialCom:
@@ -9,18 +12,14 @@ class serialCom:
     def commandThread(self):
         while self.running:
 
-            time.sleep(0.005)
+            time.sleep(0.002)
+
             drive = ("sd:" + str(self.speed[0]) + ":" + str(self.speed[1]) + ":" + str(self.speed[2]) + "\r\n")
             throw = ("d:" + str(self.throwSpeed) + "\r\n")
 
-            print(drive + throw)
-
             self.ser.write(drive.encode("utf-8"))
-            time.sleep(0.005)
+            time.sleep(0.002)
             self.ser.write(throw.encode("utf-8"))
-
-            while self.ser.inWaiting() > 0:
-                self.ser.read()
 
     def __init__(self):
         self.running = True
@@ -28,6 +27,9 @@ class serialCom:
         self.forward_movement_angle = 90
         self.right_wheel_angle = 120
         self.left_wheel_angle = 240
+        self.signal = False
+        self.targets = ""
+        self.baskets = ""
         self.throwSpeed, self.speed = 100, [0, 0, 0]
         self.w = threading.Thread(name='commandThread', target=self.commandThread)
         self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
@@ -67,7 +69,6 @@ class serialCom:
     def rotateAroundBall(self, speed):
         self.speed = [0, speed, 0]
 
-
     def calcDirectionAngle(self, robotDirectionAngle, middle_px, X, Y):
         try:
             robotDirectionAngle = int(math.degrees(math.atan((middle_px-X) / Y)) + robotDirectionAngle)
@@ -88,9 +89,16 @@ class serialCom:
         self.speed[1] = int(self.wheelLinearVelocity(-speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
         self.speed[2] = int(self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
 
+    def moveVertical(self, speed):
+        self.speed[0] = int(self.wheelLinearVelocity(-speed, self.right_wheel_angle, self.forward_movement_angle))
+        self.speed[1] = int(self.wheelLinearVelocity(speed, self.middle_wheel_angle, self.forward_movement_angle))
+        self.speed[2] = int(self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle))
+
     def setStopped(self, stopped):
         self.running = stopped
-        self.throwSpeed, self.speed = 0, [0, 0, 0]
+        self.speed = [0, 0, 0]
         time.sleep(0.2)
         self.ser.close()
+
+
 

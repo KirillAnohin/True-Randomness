@@ -10,6 +10,8 @@ MIN_BASKET_AREA = parser.get("Params", "min_basket_area")
 
 teamColor = parser.get("Game", "team")
 W = 16
+
+# Basket laius, kaugus
 F = (59 * 151) / W
 
 filters = {
