@@ -11,36 +11,38 @@ parser = config.config()
 
 
 def automotive_movement():
-
     cv2.namedWindow("Processed")
 
     image_thread = vision.imageCapRS2()
     robot = serialCom.serialCom()
 
     throwerSpeeds = utils.readThrowerFile("../config/measurements.csv")
-    middle_px = parser.get('Cam', 'Width') / 2 - 0
-    rotateForBasketSpeed = PID(0.15, 0, 0, setpoint=320)
-    toBallSpeed = PID(0.3, 0.00001, 0.0001, setpoint=400)
+    middle_px = parser.get('Cam', 'Width') / 2
+    toBallSpeed = PID(0.3, 0.00001, 0.0001, setpoint=410)
     toBallSpeed.output_limits = (-50, 50)
 
     iter = 0
-    ballX = -1
-    basketX = -1
     basket_dist_from_centerX = 320
     distBuffer = []
     throwing = False
+    rotating = False
     counter = 0
+    currentState = "Pause"
+    circling_speed = 50
 
     while True:
-
+        print("ROTATING:", rotating)
+        print("THROWING:", throwing)
         depth_frame, frame = image_thread.getFrame()
         ballCnts, basketCnts = imageProcessing.getContours(frame)
 
+        ballX = -1
+        basketX = -1
         if counter > 60:
             counter = 0
-            throwing = False
             robot.stopThrow()
             robot.stopMoving()
+            throwing = False
 
         if len(distBuffer) > 15:
             distBuffer.pop(0)
@@ -52,57 +54,84 @@ def automotive_movement():
             if distance > 0:
                 distBuffer.append(distance)
 
-            print(basketX, basketY, h, w)
             if basketX > -1:
                 basket_dist_from_centerX = middle_px - basketX
             else:
                 basket_dist_from_centerX = 320
 
-
         if len(ballCnts) > 0:  # BallCNTS
             ballX, ballY = imageProcessing.detectObj(frame, ballCnts)
 
-            if basketX > -1:
-                ball_dist_from_centerX = middle_x_pixel - ball_X
+            if ballX > -1:
+                ball_dist_from_centerX = middle_px - ballX
+            else:
+                ball_dist_from_centerX = 320
 
-        if ballX != -1:
+        if throwing:
+            currentState = "Throwing"
+            counter += 1
+            robot.forward(40)
+            if counter == 1:
+                if len(distBuffer) > 0:
+                    maxdist = max(distBuffer)
+                    if maxdist > 0:
+                        speed = utils.throwStrength(maxdist, throwerSpeeds)
+            robot.startThrow(speed)
 
-            if throwing:
-                if abs(basket_dist_from_centerX) < 2:
-                    if abs(ball_dist_from_centerX) < 42:
-                        counter += 1
-                        robot.forward(40)
-                        if counter == 1:
-                            if len(distBuffer) > 0:
-                                maxdist = max(distBuffer)
-                                if maxdist > 0:
-                                    speed = utils.throwStrength(maxdist, throwerSpeeds)
-                        robot.startThrow(speed)
-
+        elif ballX != -1:
+            cv2.putText(frame, "Ball_dist: " + str(abs(int(ball_dist_from_centerX))), (10, 370),
+                        cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
+            cv2.putText(frame, "Basket_dist: " + str(abs(int(basket_dist_from_centerX))), (10, 335),
+                        cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
+            if rotating and not throwing:
+                if abs(basket_dist_from_centerX) < 3:
+                    if abs(ball_dist_from_centerX) - 18 < 46:
+                        cv2.putText(frame, "Molemad on keskel! :O", (10, 470), cv2.FONT_HERSHEY_DUPLEX, 1,
+                                    cv2.COLOR_YUV420sp2GRAY)
+                        robot.stopMoving()
+                        rotating = False
+                        throwing = True
+                        robot.stopThrow()
                     else:
-                        X_speed = ball_dist_from_centerX/20
+                        currentState = "moveHorizontal"
+                        min_speed = 5
+                        X_speed = ball_dist_from_centerX / 20
                         if X_speed <= 0:
-                            calculated_speed = -min(5+abs(X_speed), 20)
+                            calculated_speed = -min(min_speed + abs(X_speed), 20)
+                            # calculated_speed = -forward_speed
                         else:
-                            calculated_speed = min(5 + X_speed, 20)
-
-                        robot.moveVertical(calculated_speed)
+                            calculated_speed = min(min_speed + X_speed, 20)
+                        robot.moveHorizontal(calculated_speed)
 
                 else:
-                    robot.rotateAroundBall(int(-rotateForBasketSpeed(basketX)))
+                    currentState = "Rotating"
+                    min_speed = 10
+                    X_speed = basket_dist_from_centerX / (320 / (circling_speed - min_speed))
+                    if X_speed <= 0:
+                        calculated_speed = min(min_speed + abs(X_speed), circling_speed)
+                    else:
+                        calculated_speed = -(min(min_speed + X_speed, circling_speed))
 
-            elif ballY > parser.get('Cam', 'Height') - 100 and not throwing:
-                throwing = True
+                    robot.rotateAroundBall(calculated_speed)
+
+
+            elif ballY > parser.get('Cam', 'Height') - 100 and not rotating and not throwing:
+                currentState = "Close to ball, rotatig true"
+                rotating = True
 
             else:
+                currentState = "Moving to ball"
                 robot.omniMovement(int(toBallSpeed(ballY)), middle_px, ballX, ballY)
 
         else:
             iter += 1
             if iter > 3:
-                robot.left(10)
+                currentState = "Searching"
+                robot.left(15)
                 iter = 0
 
+        cv2.putText(frame, "Olek: " + currentState, (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1,
+                    cv2.COLOR_YUV420sp2GRAY)
         cv2.imshow('Processed', frame)
         k = cv2.waitKey(1) & 0xFF
         if k == ord("q"):

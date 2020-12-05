@@ -56,6 +56,7 @@ def measurement():
             break
 
     obj1.setStopped(False)
+    obj1.stopThrow()
     image_thread.setStopped(False)
     cv2.destroyAllWindows()
 

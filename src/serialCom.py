@@ -2,9 +2,6 @@ import math
 import threading
 import time
 import serial
-import json
-import asyncio
-import websockets
 
 
 class serialCom:
@@ -12,14 +9,16 @@ class serialCom:
     def commandThread(self):
         while self.running:
 
-            time.sleep(0.002)
-
             drive = ("sd:" + str(self.speed[0]) + ":" + str(self.speed[1]) + ":" + str(self.speed[2]) + "\r\n")
             throw = ("d:" + str(self.throwSpeed) + "\r\n")
-
+            print(drive)
+            time.sleep(0.002)
             self.ser.write(drive.encode("utf-8"))
             time.sleep(0.002)
             self.ser.write(throw.encode("utf-8"))
+
+            while self.ser.inWaiting() > 0:
+                self.ser.read()
 
     def __init__(self):
         self.running = True
@@ -89,10 +88,10 @@ class serialCom:
         self.speed[1] = int(self.wheelLinearVelocity(-speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
         self.speed[2] = int(self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
 
-    def moveVertical(self, speed):
-        self.speed[0] = int(self.wheelLinearVelocity(-speed, self.right_wheel_angle, self.forward_movement_angle))
-        self.speed[1] = int(self.wheelLinearVelocity(speed, self.middle_wheel_angle, self.forward_movement_angle))
-        self.speed[2] = int(self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle))
+    def moveHorizontal(self, speed):
+        self.speed[0] = int(self.wheelLinearVelocity(-speed, self.right_wheel_angle, 180))
+        self.speed[1] = int(self.wheelLinearVelocity(speed, self.middle_wheel_angle, 180))
+        self.speed[2] = int(self.wheelLinearVelocity(-speed, self.left_wheel_angle, 180))
 
     def setStopped(self, stopped):
         self.running = stopped
