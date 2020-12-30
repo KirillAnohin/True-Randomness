@@ -8,16 +8,14 @@ kernel = np.ones((3, 3), np.uint8)
 MIN_BALL_AREA = parser.get("Params", "min_ball_area")
 MIN_BASKET_AREA = parser.get("Params", "min_basket_area")
 
-teamColor = parser.get("Game", "team")
+# Distance params
 W = 16
-
-# Basket laius, kaugus
-F = (59 * 151) / W
+F = (59 * 151) / W  # Basket laius, kaugus
 
 filters = {
     'Ball': {"min": parser.get("Ball", "min"), "max": parser.get("Ball", "max")},
-    'BasketBlue': {"min": parser.get("BasketBlue", "min"), "max": parser.get("BasketBlue", "max")},
-    'BasketMagenta': {"min": parser.get("BasketMagenta", "min"), "max": parser.get("BasketMagenta", "max")}
+    'blue': {"min": parser.get("BasketBlue", "min"), "max": parser.get("BasketBlue", "max")},
+    'magenta': {"min": parser.get("BasketMagenta", "min"), "max": parser.get("BasketMagenta", "max")}
 }
 
 
@@ -70,11 +68,12 @@ def detectObj(frame, cnts, isBall=True):
             else:
                 return -1, -1, -1, -1
 
+
 def calc_distance(width):
     distance = round((W * F) / width, 2)
     return distance
 
-def getContours(frame):
+def getContours(frame, teamColor):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # maskBall = cv2.medianBlur(hsv, 7)
 
