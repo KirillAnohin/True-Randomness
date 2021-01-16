@@ -3,9 +3,11 @@ from enum import Enum, unique, auto
 from typing import Tuple, Union
 
 import cv2
+import websocket
 from simple_pid import PID
 
 from src import config, vision, imageProcessing
+from src.referee import Referee
 from src.serialCom import serialCom
 
 
@@ -43,11 +45,14 @@ def main():
     parser = config.config()
 
     image_thread = vision.imageCapRS2()
+    #ws = Referee(websocket.create_connection('ws://192.168.2.220:8111/'))
     robot = serialCom()
 
+    teamColor = "magenta"
+
     middle_px = parser.get('Cam', 'Width') / 2
-    toBallSpeed = PID(0.4, 0.00001, 0.0001, setpoint=450)
-    toBallSpeed.output_limits = (-50, 50)  # Motor limits
+    toBallSpeed = PID(0.4, 0.00001, 0.0001, setpoint=460)
+    toBallSpeed.output_limits = (-15, 15)  # Motor limits
 
     while True:
         frame = image_thread.getFrame()
@@ -58,12 +63,12 @@ def main():
             #
         elif state.current is STATE.FINDING_BALL:
             # finding ball
-            ballCnts, basketCnts = imageProcessing.getContours(frame)
+            ballCnts, basketCnts = imageProcessing.getContours(frame, teamColor)
             if len(ballCnts) > 0:
                 ball_x, ball_y = imageProcessing.detectObj(frame, ballCnts)
-                if ball_y > parser.get('Cam', 'Height') - 100:
+                if ball_y > parser.get('Cam', 'Height') - 35:  # 30 - 60
                     print('found ball')
-                    # state.change_state(STATE.PICKING_UP_BALL)
+                    state.change_state(STATE.PICKING_UP_BALL)
                 else:
                     robot.omniMovement(int(toBallSpeed(ball_y)), middle_px, ball_x, ball_y)
             else:
@@ -71,32 +76,36 @@ def main():
             #
         elif state.current is STATE.PICKING_UP_BALL:
             # picking up ball
-            robot.stopMoving()
-            robot.setIr(0)
-            robot.setServo(50)
-            if state.timer_seconds_passed() > 10:
-                robot.setServo(-100)  # eject
-            # state.change_state(STATE.FINDING_BALL)  # ball disappeared, restart
-            elif robot.recive.ir == 1:
-                # state.change_state(STATE.FINDING_BASKET)
-                pass
+            robot.forward(10)
+            if state.timer_seconds_passed() > 0.5:
+                robot.stopMoving()
+                robot.setIr(0)
+                robot.setServo(50)
+                if state.timer_seconds_passed() > 10:
+                    robot.setServo(-100)  # eject
+                    state.change_state(STATE.FINDING_BALL)  # ball disappeared, restart
+                elif robot.recive.ir == 1:
+                    state.change_state(STATE.FINDING_BASKET)
+                    pass
             #
         elif state.current is STATE.FINDING_BASKET:
             # finding basket
-            ballCnts, basketCnts = imageProcessing.getContours(frame)
+            # to add if basket too close go back a little
+            ballCnts, basketCnts = imageProcessing.getContours(frame, teamColor)
             if len(basketCnts) > 0:
                 target_x, target_y, w, h = imageProcessing.detectObj(frame, basketCnts, False)
                 dist_from_centerX = 320
                 if target_x > -1:
                     dist_from_centerX = middle_px - target_x
 
-                if abs(dist_from_centerX) < 3:
+                if abs(dist_from_centerX) < 10:
+                    robot.stopMoving()
                     state.change_state(STATE.DRIVING_TO_BASKET)
                 else:
                     if dist_from_centerX > 0:
-                        robot.left(int(toBallSpeed(target_y)))
+                        robot.left(5)
                     else:
-                        robot.right(int(toBallSpeed(target_y)))
+                        robot.right(5)
             else:
                 robot.left(5)
             #
@@ -113,7 +122,7 @@ def main():
         elif state.current is STATE.THROWING_BALL:
             # throwing ball
             robot.setIr(1)
-            if state.timer_seconds_passed() > 5:
+            if state.timer_seconds_passed() > 3:
                 robot.setIr(0)
                 robot.setServo(0)
                 robot.startThrow(0)

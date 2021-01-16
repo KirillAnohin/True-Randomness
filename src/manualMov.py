@@ -4,7 +4,7 @@ import time
 from src import serialCom
 
 ThrowSpeed = 50
-Speed = 15
+Speed = 10
 
 
 def main():

@@ -153,11 +153,11 @@ class serialCom:
     # sd:right:middle:left
     def omniMovement(self, speed, middle_px, X=None, Y=None):
         self.speed[0] = int(
-            self.wheelLinearVelocity(-speed, self.right_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
+            self.wheelLinearVelocity(speed, self.right_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
         self.speed[1] = int(
-            self.wheelLinearVelocity(-speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
+            self.wheelLinearVelocity(speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
         self.speed[2] = int(
-            self.wheelLinearVelocity(-speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
+            self.wheelLinearVelocity(speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
 
     def setStopped(self, stopped):
         self.running = stopped
