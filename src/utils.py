@@ -11,6 +11,7 @@ def throwStrength(distance, throwStrengths):
             return throwStrengths[0][1]
     return 250
 
+
 def readThrowerFile(failname):
     fail = open(failname)
     andmed = []

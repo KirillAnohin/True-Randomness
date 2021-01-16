@@ -1,12 +1,13 @@
 import cv2
+import time
 
 from src import serialCom
 
-ThrowSpeed = 200
-Speed = 10
+ThrowSpeed = 50
+Speed = 15
 
-def manual_movement():
 
+def main():
     cv2.namedWindow("Controller")
     obj1 = serialCom.serialCom()
 
@@ -28,6 +29,9 @@ def manual_movement():
         elif k == ord("t"):
             print("Throw")
             obj1.startThrow(ThrowSpeed)
+        elif k == ord("l"):
+            print("robot stop")
+            obj1.stopMoving()
         elif k == ord("r"):
             print("Stop throw")
             obj1.stopThrow()
@@ -35,5 +39,7 @@ def manual_movement():
             print("Break")
             break
 
+    obj1.stopMoving()
+    time.sleep(0.2)
     obj1.setStopped(False)
     cv2.destroyAllWindows()

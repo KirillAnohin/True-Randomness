@@ -23,7 +23,6 @@ class imageCapRS2:
         realsense_config.configure()
         # create initial variables for use in methods
         self.running = True
-        self.depth_frame = None
         self.currentFrame = None
 
         # create and start the pipeline with a color image stream
@@ -31,8 +30,6 @@ class imageCapRS2:
         self.config = rs.config()
         self.config.enable_stream(rs.stream.color, self.rs_config.get('Cam', 'Width'),
                                   self.rs_config.get('Cam', 'Height'), rs.format.bgr8, self.rs_config.get('Cam', 'Fps'))
-        # self.config.enable_stream(rs.stream.depth, self.rs_config.get('Cam', 'Width'),
-        #                           self.rs_config.get('Cam', 'Height'), rs.format.z16, self.rs_config.get('Cam', 'Fps'))
         self.pipeline.start(self.config)
 
         # initialize the values for the frame related variables

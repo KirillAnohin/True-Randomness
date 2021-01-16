@@ -1,6 +1,6 @@
 from functools import partial
 import numpy as np
-from src import config, vision
+from src import config, vision, imageProcessing
 import cv2
 
 parser = config.config()
@@ -21,7 +21,7 @@ def calibrate():
     global parser
 
     while True:
-        print("Available objects: Ball, BasketBlue, BasketMagenta")
+        print("Available objects: Ball, BasketBlue, BasketMagenta, FieldColor")
         color_name = input("Enter color name: ")
         status = parser.checkSection(color_name)
         print(status)
@@ -60,6 +60,8 @@ def calibrate():
         mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.dilate(mask, kernel, iterations=2)
+        #cnts1, cnts2, cnts3 = imageProcessing.getContours(frame)
+        #imageProcessing.getFieldArea(frame, cnts3)
 
         cv2.imshow("Processed", mask)
 
