@@ -13,6 +13,7 @@ from src.serialCom import serialCom
 
 @unique
 class STATE(Enum):
+    EMPTYING = auto()
     WAITING = auto()
     FINDING_BALL = auto()
     DRIVING_TO_BALL = auto()
@@ -33,6 +34,11 @@ class RobotState:
         self.current = next_state
         self.timer = None
 
+    def timer_ms_passed(self):
+        if self.timer is None:
+            self.timer = datetime.now()
+        return (datetime.now() - self.timer).microseconds/1000000
+
     def timer_seconds_passed(self):
         if self.timer is None:
             self.timer = datetime.now()
@@ -47,18 +53,33 @@ def main():
     image_thread = vision.imageCapRS2()
     #ws = Referee(websocket.create_connection('ws://192.168.2.220:8111/'))
     robot = serialCom()
-
+    distances = []
     teamColor = "magenta"
+    basketxs = []
+    finaldistance = 0
 
     middle_px = parser.get('Cam', 'Width') / 2
     toBallSpeed = PID(0.4, 0.00001, 0.0001, setpoint=460)
-    toBallSpeed.output_limits = (-15, 15)  # Motor limits
+    toBallSpeed.output_limits = (0, 25)  # Motor limits
+
+    basketCenterSpeed = PID(0.10, 0.000001, 0.00001, setpoint=320)
+    basketCenterSpeed.output_limits = (-5, 5)  # Motor limits
 
     while True:
         frame = image_thread.getFrame()
 
-        if state.current is STATE.WAITING:
+        if state.current is STATE.EMPTYING:
+            #if robot.recive.ir == 1:
+            #robot.setIr(1)
+            #robot.setServo(100)
+            #if state.timer_seconds_passed() > 1.0:
+            state.change_state(STATE.WAITING)
+            #else:
+            #    state.change_state(STATE.WAITING)
+        elif state.current is STATE.WAITING:
             # waiting
+            robot.setIr(0)
+            robot.setServo(0)
             state.change_state(STATE.FINDING_BALL)
             #
         elif state.current is STATE.FINDING_BALL:
@@ -66,7 +87,7 @@ def main():
             ballCnts, basketCnts = imageProcessing.getContours(frame, teamColor)
             if len(ballCnts) > 0:
                 ball_x, ball_y = imageProcessing.detectObj(frame, ballCnts)
-                if ball_y > parser.get('Cam', 'Height') - 35:  # 30 - 60
+                if ball_y > parser.get('Cam', 'Height') - 35 and ball_y < 470:  # 30 - 60
                     print('found ball')
                     state.change_state(STATE.PICKING_UP_BALL)
                 else:
@@ -94,18 +115,29 @@ def main():
             ballCnts, basketCnts = imageProcessing.getContours(frame, teamColor)
             if len(basketCnts) > 0:
                 target_x, target_y, w, h = imageProcessing.detectObj(frame, basketCnts, False)
+                print("target_x", target_x)
+                distance = imageProcessing.calc_distance(w)
+                if (len(distances) > 15):
+                    distances.pop(0)
+                    distances.append(distance)
+                    finaldistance = sum(distances) / len(distances)
+                else:
+                    distances.append(distance)
+
                 dist_from_centerX = 320
                 if target_x > -1:
                     dist_from_centerX = middle_px - target_x
 
-                if abs(dist_from_centerX) < 10:
+                print("dist_from_center", abs(dist_from_centerX))
+                basketxs.append(dist_from_centerX)
+                if len(basketxs) > 20:
+                    basketxs.pop(0)
+
+                if state.timer_seconds_passed() > 9:
                     robot.stopMoving()
                     state.change_state(STATE.DRIVING_TO_BASKET)
-                else:
-                    if dist_from_centerX > 0:
-                        robot.left(5)
-                    else:
-                        robot.right(5)
+
+                robot.rotate(-basketCenterSpeed(target_x))
             else:
                 robot.left(5)
             #
@@ -115,14 +147,16 @@ def main():
             #
         elif state.current is STATE.STARTING_THROWER:
             # starting thrower
-            robot.startThrow(50)
-            if state.timer_seconds_passed() > 2:
+            throwSpeed = -0.000161064 * finaldistance**2 + 0.180854 * finaldistance + 14.205
+            print(throwSpeed)
+            robot.startThrow(throwSpeed)
+            if state.timer_ms_passed() > 0.5:
                 state.change_state(STATE.THROWING_BALL)
             #
         elif state.current is STATE.THROWING_BALL:
             # throwing ball
             robot.setIr(1)
-            if state.timer_seconds_passed() > 3:
+            if state.timer_seconds_passed() > 2:
                 robot.setIr(0)
                 robot.setServo(0)
                 robot.startThrow(0)

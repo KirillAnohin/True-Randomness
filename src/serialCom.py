@@ -14,8 +14,8 @@ class Command:
     motor1: float = 0
     motor2: float = 0
     motor3: float = 0
-    thrower: int = 0
-    servo: int = 0
+    thrower: float = 0
+    servo: float = 0
     ir: int = 0
     # pGain: float = 0
     # iGain: float = 0
@@ -23,7 +23,7 @@ class Command:
     pid_type: int = 0  # 0 = instant pid; 1 = avg of last 10 values
     delimiter: int = 0xABCABC
     # format = 'fffiiifffii'
-    format = 'fffiiiii'
+    format = 'fffffiii'
     size = struct.calcsize(format)
 
     def pack(self):
@@ -63,6 +63,7 @@ class serialCom:
             self.command.ir = int(self.ir)
 
             #print(f'm1:{self.command.motor1} m2:{self.command.motor2} m3:{self.command.motor3}')
+            #print(f'send:{self.command.ir} recive:{self.recive.ir}')
 
             drive = self.command.pack()
 
@@ -72,7 +73,7 @@ class serialCom:
             while self.ser.inWaiting() > 0:
                 data = self.ser.read(self.recive.size)
                 self.recive.unpack(data)
-                self.ir = self.recive.ir
+                #self.ir = self.recive.ir
                 #print(f'r1:{self.recive.motor1} r2:{self.recive.motor2} r3:{self.recive.motor3}')
 
     def __init__(self):
@@ -132,8 +133,8 @@ class serialCom:
     def stopMoving(self):
         self.speed = [0, 0, 0]
 
-    def rotateAroundBall(self, speed):
-        self.speed = [0, speed, 0]
+    def rotate(self, speed):
+        self.speed = [-speed, speed, -speed]
 
     def calcDirectionAngle(self, robotDirectionAngle, middle_px, X, Y):
         try:

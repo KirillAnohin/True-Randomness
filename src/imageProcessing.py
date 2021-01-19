@@ -8,15 +8,18 @@ kernel = np.ones((3, 3), np.uint8)
 MIN_BALL_AREA = parser.get("Params", "min_ball_area")
 MIN_BASKET_AREA = parser.get("Params", "min_basket_area")
 
-# Basket laius, kaugus
+teamColor = parser.get("Game", "team")
 W = 16
+
+# Basket laius, kaugus
 F = (59 * 151) / W
 
 filters = {
     'Ball': {"min": parser.get("Ball", "min"), "max": parser.get("Ball", "max")},
-    'blue': {"min": parser.get("BasketBlue", "min"), "max": parser.get("BasketBlue", "max")},
-    'magenta': {"min": parser.get("BasketMagenta", "min"), "max": parser.get("BasketMagenta", "max")},
+    'BasketBlue': {"min": parser.get("BasketBlue", "min"), "max": parser.get("BasketBlue", "max")},
+    'BasketMagenta': {"min": parser.get("BasketMagenta", "min"), "max": parser.get("BasketMagenta", "max")}
 }
+
 
 def detectObj(frame, cnts, isBall=True):
     c = max(cnts, key=cv2.contourArea)
@@ -59,7 +62,7 @@ def detectObj(frame, cnts, isBall=True):
             # print("Basket size: ", w*h)
             # print("wh " + str(w*h))
             if h >= 5 and (w * h >= 800):
-                print(w * h)
+                print(w*h)
                 cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
                 cv2.putText(frame, "Laius: " + str(round(w)), (10, 300), cv2.FONT_HERSHEY_DUPLEX, 1,
                             cv2.COLOR_YUV420sp2GRAY)
@@ -67,13 +70,11 @@ def detectObj(frame, cnts, isBall=True):
             else:
                 return -1, -1, -1, -1
 
-
 def calc_distance(width):
     distance = round((W * F) / width, 2)
     return distance
 
-
-def getContours(frame, teamColor):
+def getContours(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # maskBall = cv2.medianBlur(hsv, 7)
 
@@ -83,7 +84,7 @@ def getContours(frame, teamColor):
 
     maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
     maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
-    # maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
+    #maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
     maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
 
     maskCombo = cv2.add(maskBall, maskBasket)

@@ -51,7 +51,7 @@ def calibrate():
     cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(update_range, "max", 2, filters))
 
     while True:
-        depth_frame, frame = image_thread.getFrame()
+        frame = image_thread.getFrame()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         #mask = cv2.medianBlur(hsv, 7)
 
