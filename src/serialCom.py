@@ -138,7 +138,7 @@ class serialCom:
 
     def calcDirectionAngle(self, robotDirectionAngle, middle_px, X, Y):
         try:
-            robotDirectionAngle = int(math.degrees(math.atan((middle_px - X) / Y)) + robotDirectionAngle)
+            robotDirectionAngle = math.degrees(math.atan((middle_px - X) / Y)) + robotDirectionAngle
         except ZeroDivisionError:
             robotDirectionAngle = 0.1
         return robotDirectionAngle

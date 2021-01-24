@@ -11,10 +11,10 @@ class Referee:
             if message != "":
                 command = json.loads(message)
 
-                if command["signal"] == "stop" and self.robot in command["targets"]:
+                if command["signal"] == "stop" and self.robotID in command["targets"]:
                     self.go = False
-                elif command["signal"] == "start" and self.robot in command["targets"]:
-                    index = command["targets"].index(self.robot)
+                elif command["signal"] == "start" and self.robotID in command["targets"]:
+                    index = command["targets"].index(self.robotID)
                     color = command["baskets"][index]
                     self.basketColor = color
                     self.go = True

@@ -21,7 +21,7 @@ def calibrate():
     global parser
 
     while True:
-        print("Available objects: Ball, BasketBlue, BasketMagenta, FieldColor")
+        print("Available objects: Ball, BasketBlue, BasketMagenta, FieldColor, BlackLines")
         color_name = input("Enter color name: ")
         status = parser.checkSection(color_name)
         print(status)
@@ -57,7 +57,8 @@ def calibrate():
 
         cv2.imshow("frame", frame)
 
-        mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
+        mask = cv2.inRange(hsv[0:340], tuple(filters["min"]), tuple(filters["max"]))
+        #mask = cv2.GaussianBlur(mask, (3, 3), cv2.BORDER_DEFAULT)
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.dilate(mask, kernel, iterations=2)
         #cnts1, cnts2, cnts3 = imageProcessing.getContours(frame)

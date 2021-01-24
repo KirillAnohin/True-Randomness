@@ -16,7 +16,7 @@ def measurement():
     while True:
 
         frame = image_thread.getFrame()
-        ballCnts, basketCnts = imageProcessing.getContours(frame)
+        ballCnts, basketCnts = imageProcessing.getContours(frame, "magenta")
 
         cv2.imshow('Processed', frame)
 
@@ -39,24 +39,24 @@ def measurement():
         cv2.imshow('Processed', frame)
 
         k = cv2.waitKey(1) & 0xFF
-    #     if k == ord("t"):
-    #         print("Throw")
-    #         obj1.startThrow(ThrowSpeed)
-    #     elif k == ord("r"):
-    #         print("Stop throw")
-    #         obj1.stopThrow()
-    #     elif k == ord("l"):
-    #         print("lowering by 1")
-    #         ThrowSpeed -= 1
-    #     elif k == ord("h"):
-    #         print("increasing by 1")
-    #         ThrowSpeed += 1
+        # if k == ord("t"):
+        #     print("Throw")
+        #     obj1.startThrow(ThrowSpeed)
+        # elif k == ord("r"):
+        #     print("Stop throw")
+        #     obj1.stopThrow()
+        # elif k == ord("l"):
+        #     print("lowering by 1")
+        #     ThrowSpeed -= 1
+        # elif k == ord("h"):
+        #     print("increasing by 1")
+        #     ThrowSpeed += 1
         if k == ord("q"):
-            print("Break")
-            break
-    #
-    # obj1.setStopped(False)
-    # obj1.stopThrow()
+             print("Break")
+             break
+
+    #obj1.setStopped(False)
+    #obj1.stopThrow()
     image_thread.setStopped(False)
     cv2.destroyAllWindows()
 
