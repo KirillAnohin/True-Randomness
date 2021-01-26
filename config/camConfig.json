@@ -87,7 +87,7 @@
     "param-texturedifferencethresh": "0",
     "param-usersm": "1",
     "param-zunits": "1000",
-    "stream-fps": "30",
-    "stream-height": "720",
-    "stream-width": "1280"
+    "stream-fps": "60",
+    "stream-height": "480",
+    "stream-width": "640"
 }

@@ -17,13 +17,13 @@ class Command:
     thrower: float = 0
     servo: float = 0
     ir: int = 0
-    # pGain: float = 0
-    # iGain: float = 0
-    # dGain: float = 0
+    pGain: float = 5
+    iGain: float = 0.001
+    dGain: float = 15
     pid_type: int = 0  # 0 = instant pid; 1 = avg of last 10 values
     delimiter: int = 0xABCABC
-    # format = 'fffiiifffii'
-    format = 'fffffiii'
+    format = 'fffffifffii'
+    #format = 'fffffiii'
     size = struct.calcsize(format)
 
     def pack(self):
@@ -35,9 +35,9 @@ class Command:
             self.thrower,
             self.servo,
             self.ir,
-            # self.pGain,
-            # self.iGain,
-            # self.dGain,
+            self.pGain,
+            self.iGain,
+            self.dGain,
             self.pid_type,
             self.delimiter)
 
@@ -62,12 +62,12 @@ class serialCom:
             self.command.servo = int(self.servo)
             self.command.ir = int(self.ir)
 
-            #print(f'm1:{self.command.motor1} m2:{self.command.motor2} m3:{self.command.motor3}')
+            #print(f'm1kesk:{self.command.motor1} m2vasak:{self.command.motor2} m3parem:{self.command.motor3}')
             #print(f'send:{self.command.ir} recive:{self.recive.ir}')
 
             drive = self.command.pack()
 
-            time.sleep(0.002)
+            time.sleep(0.1)
             self.ser.write(drive)
 
             while self.ser.inWaiting() > 0:
@@ -88,12 +88,6 @@ class serialCom:
         self.left_wheel_angle = 240
         # Parser define
         self.parser = config.config()
-        # WebSocket params
-        self.gameStatus = False
-        self.baskets = "magenta"
-        self.robotID = self.parser.get("Game", "robotID")
-        # Connection to websocket
-
         # Serial connection
         self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
         print(self.ser.name)
@@ -136,29 +130,34 @@ class serialCom:
     def rotate(self, speed):
         self.speed = [-speed, speed, -speed]
 
-    def calcDirectionAngle(self, robotDirectionAngle, middle_px, X, Y):
+    def calcDirectionAngle(self, middle_px, X, Y):
         try:
-            robotDirectionAngle = math.degrees(math.atan((middle_px - X) / Y)) + robotDirectionAngle
+            print("Y", Y)
+            if Y > 260:
+                robotDirectionAngle = math.degrees(math.atan((middle_px - X) / Y)) + 90
+            else:
+                robotDirectionAngle = math.degrees(math.atan2(1200 - Y, X - 320))
+            print(robotDirectionAngle)
         except ZeroDivisionError:
             robotDirectionAngle = 0.1
         return robotDirectionAngle
 
-    def wheelLinearVelocity(self, robotSpeed, wheelAngle, robotDirectionAngle, middle_px=None, X=None, Y=None):
+    def wheelLinearVelocity(self, robotSpeed, wheelAngle, middle_px=None, X=None, Y=None):
         if Y is not None and Y != 0:
-            robotDirectionAngle = self.calcDirectionAngle(robotDirectionAngle, middle_px, X, Y)
+            robotDirectionAngle = self.calcDirectionAngle(middle_px, X, Y)
+            print("robotANgle", robotDirectionAngle)
             wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
         else:
-            wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
+            wheelLinearVelocity = robotSpeed * math.cos(math.radians(90 - wheelAngle))
         return wheelLinearVelocity
 
     # sd:right:middle:left
     def omniMovement(self, speed, middle_px, X=None, Y=None):
-        self.speed[0] = int(
-            self.wheelLinearVelocity(speed, self.right_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
-        self.speed[1] = int(
-            self.wheelLinearVelocity(speed, self.middle_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
-        self.speed[2] = int(
-            self.wheelLinearVelocity(speed, self.left_wheel_angle, self.forward_movement_angle, middle_px, X, Y))
+        self.speed[0] = self.wheelLinearVelocity(speed, self.right_wheel_angle, middle_px, X, Y) #parem
+        self.speed[1] = self.wheelLinearVelocity(speed, self.middle_wheel_angle, middle_px, X, Y) #keskmine
+        self.speed[2] = self.wheelLinearVelocity(speed, self.left_wheel_angle, middle_px, X, Y) #vasak
+
+        #print(f'm1kesk:{self.speed[1]} m2vasak:{self.speed[2]} m3parem:{self.speed[0]}')
 
     def setStopped(self, stopped):
         self.running = stopped

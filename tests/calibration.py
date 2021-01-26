@@ -57,12 +57,12 @@ def calibrate():
 
         cv2.imshow("frame", frame)
 
-        mask = cv2.inRange(hsv[0:340], tuple(filters["min"]), tuple(filters["max"]))
+        mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
         #mask = cv2.GaussianBlur(mask, (3, 3), cv2.BORDER_DEFAULT)
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.dilate(mask, kernel, iterations=2)
-        #cnts1, cnts2, cnts3 = imageProcessing.getContours(frame)
         #imageProcessing.getFieldArea(frame, cnts3)
+        #cont = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         cv2.imshow("Processed", mask)
 

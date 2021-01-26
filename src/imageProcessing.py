@@ -16,7 +16,41 @@ filters = {
     'Ball': {"min": parser.get("Ball", "min"), "max": parser.get("Ball", "max")},
     'blue': {"min": parser.get("BasketBlue", "min"), "max": parser.get("BasketBlue", "max")},
     'magenta': {"min": parser.get("BasketMagenta", "min"), "max": parser.get("BasketMagenta", "max")},
+    'black': {"min": parser.get("BlackLines", "min"), "max": parser.get("BlackLines", "max")},
 }
+
+
+def detectLine(frame):
+    arr = []
+    data = -1
+    frame = frame[0:340]
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    img_blur = cv2.medianBlur(hsv, 5)
+    mask = cv2.inRange(img_blur, tuple(filters["black"]["min"]), tuple(filters["black"]["max"]))
+
+    dst = cv2.Canny(mask, 620, 260, None, 3)
+    linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 70, 300)
+
+    if linesP is not None:
+        for i in range(0, len(linesP)):
+            l = linesP[i][0]
+            # cv2.circle(frame, (l[0], l[1]), 5, (0, 255, 0), -1)
+            # cv2.circle(frame, (l[0], 0), 5, (0, 255, 0), -1)
+            # cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 3, cv2.LINE_AA)
+            arr.append([l[0], l[1]])
+            arr.append([l[0], 0])
+            arr.append([l[2], 0])
+            arr.append([l[2], l[3]])
+            arr.append([l[0], l[1]])
+            pts = np.array([arr], np.int32)
+            data = cv2.drawContours(frame, [pts], -1, 0, -1)
+
+        # pts = np.array([arr], np.int32)
+        # cv2.polylines(frame, [pts], True, (255, 0, 0))
+        return data
+    else:
+        return data
+
 
 def detectObj(frame, cnts, isBall=True):
     c = max(cnts, key=cv2.contourArea)
@@ -59,7 +93,7 @@ def detectObj(frame, cnts, isBall=True):
             # print("Basket size: ", w*h)
             # print("wh " + str(w*h))
             if h >= 5 and (w * h >= 800):
-                #print(w * h)
+                # print(w * h)
                 cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
                 cv2.putText(frame, "Laius: " + str(round(w)), (10, 300), cv2.FONT_HERSHEY_DUPLEX, 1,
                             cv2.COLOR_YUV420sp2GRAY)
@@ -73,28 +107,27 @@ def calc_distance(width):
     return distance
 
 
-def getContours(frame, teamColor):
+def getBasketContours(frame, teamColor):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
+    maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
+    maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
+    maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
+
+    basketcnts = cv2.findContours(maskBasket, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+    return basketcnts
+
+
+def getContours(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # maskBall = cv2.medianBlur(hsv, 7)
 
     maskBall = cv2.inRange(hsv, tuple(filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
     maskBall = cv2.morphologyEx(maskBall, cv2.MORPH_OPEN, kernel)
-    maskBall = cv2.dilate(maskBall, kernel, iterations=2)
+    maskBall = cv2.dilate(maskBall, kernel, iterations=3)
 
-    maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
-    maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
-    # maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
-    maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
-
-    maskBound = cv2.inRange(hsv, tuple(filters["BlackLines"]["min"]), tuple(filters["BlackLines"]["max"]))
-    maskBound = cv2.morphologyEx(maskBound, cv2.MORPH_OPEN, kernel)
-    maskBound = cv2.dilate(maskBound, kernel, iterations=2)
-    maskCombo = cv2.add(maskBall, maskBasket, maskBound)
-
-    cv2.imshow("Processed", maskCombo)
-
-    boundcnts = cv2.findContours(maskBound, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     ballcnts = cv2.findContours(maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    basketcnts = cv2.findContours(maskBasket, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
-    return ballcnts, basketcnts, boundcnts
+    return ballcnts
