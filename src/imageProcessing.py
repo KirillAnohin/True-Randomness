@@ -34,9 +34,6 @@ def detectLine(frame):
     if linesP is not None:
         for i in range(0, len(linesP)):
             l = linesP[i][0]
-            # cv2.circle(frame, (l[0], l[1]), 5, (0, 255, 0), -1)
-            # cv2.circle(frame, (l[0], 0), 5, (0, 255, 0), -1)
-            # cv2.line(frame, (l[0], l[1]), (l[2], l[3]), (0, 0, 255), 3, cv2.LINE_AA)
             arr.append([l[0], l[1]])
             arr.append([l[0], 0])
             arr.append([l[2], 0])
@@ -45,8 +42,6 @@ def detectLine(frame):
             pts = np.array([arr], np.int32)
             data = cv2.drawContours(frame, [pts], -1, 0, -1)
 
-        # pts = np.array([arr], np.int32)
-        # cv2.polylines(frame, [pts], True, (255, 0, 0))
         return data
     else:
         return data
@@ -90,10 +85,7 @@ def detectObj(frame, cnts, isBall=True):
             cY = int(M["m01"] / M["m00"])
 
             (x, y, w, h) = cv2.boundingRect(c)
-            # print("Basket size: ", w*h)
-            # print("wh " + str(w*h))
-            if h >= 5 and (w * h >= 800):
-                # print(w * h)
+            if h >= 3 and (w * h >= 250):  # Vaheta kui ei leia basket
                 cv2.drawContours(frame, [box], 0, (0, 0, 255), 2)
                 cv2.putText(frame, "Laius: " + str(round(w)), (10, 300), cv2.FONT_HERSHEY_DUPLEX, 1,
                             cv2.COLOR_YUV420sp2GRAY)
@@ -112,7 +104,6 @@ def getBasketContours(frame, teamColor):
 
     maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
     maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
-    maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
     maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
 
     basketcnts = cv2.findContours(maskBasket, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
@@ -122,7 +113,6 @@ def getBasketContours(frame, teamColor):
 
 def getContours(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # maskBall = cv2.medianBlur(hsv, 7)
 
     maskBall = cv2.inRange(hsv, tuple(filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
     maskBall = cv2.morphologyEx(maskBall, cv2.MORPH_OPEN, kernel)

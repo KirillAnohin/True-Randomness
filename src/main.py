@@ -1,5 +1,3 @@
-import time
-
 from src import config
 from src import manualMov, autoMov
 

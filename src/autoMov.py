@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum, unique, auto
-from typing import Tuple, Union
+from typing import Union
 
 import cv2
 import websocket
@@ -97,7 +97,6 @@ def main():
                 ballCnts = imageProcessing.getContours(frame)
                 if len(ballCnts) > 0:
                     ball_x, ball_y = imageProcessing.detectObj(frame, ballCnts)
-                    print("ball_y",ball_y)
                     if ball_y > 415 and 310 < ball_x < 330:  # 30 - 60 parser.get('Cam', 'Height') - 65
                         print('found ball')
                         state.change_state(STATE.PICKING_UP_BALL)
@@ -175,7 +174,8 @@ def main():
                 #
             elif state.current is STATE.STARTING_THROWER:
                 # starting thrower
-                throwSpeed = -0.000161064 * finaldistance**2 + 0.181854 * finaldistance + 15.205 #0.180854 ja 14.205 oli varem
+                # 0.180854 ja 14.205 oli varem
+                throwSpeed = -0.000161064 * finaldistance**2 + 0.181854 * finaldistance + 15.205
                 robot.startThrow(throwSpeed)
                 if state.timer_ms_passed() > 0.5:
                     state.change_state(STATE.THROWING_BALL)

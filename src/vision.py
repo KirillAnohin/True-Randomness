@@ -3,7 +3,6 @@ from threading import Thread
 import numpy as np
 import pyrealsense2 as rs
 
-import config
 from src import config, realsense_config
 
 

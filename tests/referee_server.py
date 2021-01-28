@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 
+
 @asyncio.coroutine
 async def server(websocket, uri):
     while True:
@@ -29,7 +30,7 @@ async def server(websocket, uri):
 
 
 # Below line has the SERVER IP address, not client.
-start_server = websockets.serve(server, '192.168.2.66', 9090)
+start_server = websockets.serve(server, '192.168.3.26', 9090)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

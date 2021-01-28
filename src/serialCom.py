@@ -73,7 +73,6 @@ class serialCom:
             while self.ser.inWaiting() > 0:
                 data = self.ser.read(self.recive.size)
                 self.recive.unpack(data)
-                #self.ir = self.recive.ir
                 #print(f'r1:{self.recive.motor1} r2:{self.recive.motor2} r3:{self.recive.motor3}')
 
     def __init__(self):
