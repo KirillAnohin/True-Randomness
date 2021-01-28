@@ -33,3 +33,5 @@ Where is IP and PORT is the address of WebSocket server
   - Kirill Anohin
   - Kristo Pool
   - Hans Pärtel Pani
+
+If you wish to know more about how this project was made visit [True-Randomness_Wiki](https://digilabor.ut.ee/index.php/True_Randomness)
