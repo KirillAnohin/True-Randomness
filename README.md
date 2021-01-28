@@ -29,6 +29,8 @@ conn = websocket.create_connection('ws://<IP>:<PORT>/')
 ```
 Where is IP and PORT is the address of WebSocket server
 
+Then change robotID in config.ini to your own
+
 # Contributors
   - Kirill Anohin
   - Kristo Pool
