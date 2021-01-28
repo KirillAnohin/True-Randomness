@@ -19,7 +19,8 @@ Before code execution make sure these modules are installed:
   - configparser
 
 # How to Run
-Before main.py code running make sure thresholds are correctly configured.
+Before main.py code running, make sure thresholds are correctly configured.
+
 Run calibration.py and type what color to configre, and proceed with calibration.
 
 After calibration, change in the file autoMov.py line:
