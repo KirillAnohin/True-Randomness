@@ -125,7 +125,8 @@ class serialCom:
     def rotate(self, speed):
         self.speed = [-speed, speed, -speed]
 
-    def calcDirectionAngle(self, middle_px, X, Y):
+    @staticmethod
+    def calcDirectionAngle(middle_px, X, Y):
         try:
             print("Y", Y)
             if Y > 260:
