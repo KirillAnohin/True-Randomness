@@ -1,6 +1,6 @@
 from functools import partial
 import numpy as np
-from src import config, vision, imageProcessing
+from src import config, vision
 import cv2
 
 parser = config.config()

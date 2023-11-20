@@ -1,6 +1,6 @@
 import cv2
 
-from src import serialCom, imageProcessing, vision
+from src import imageProcessing, vision
 
 ThrowSpeed = 200
 
