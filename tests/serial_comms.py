@@ -132,7 +132,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     widget = QTWindow()
     widget.show()
-    exit(app.exec_())
+    sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
