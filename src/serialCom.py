@@ -23,7 +23,6 @@ class Command:
     pid_type: int = 0  # 0 = instant pid; 1 = avg of last 10 values
     delimiter: int = 0xABCABC
     format = 'fffffifffii'
-    #format = 'fffffiii'
     size = struct.calcsize(format)
 
     def pack(self):
@@ -62,8 +61,6 @@ class serialCom:
             self.command.servo = int(self.servo)
             self.command.ir = int(self.ir)
 
-            #print(f'm1kesk:{self.command.motor1} m2vasak:{self.command.motor2} m3parem:{self.command.motor3}')
-            #print(f'send:{self.command.ir} recive:{self.recive.ir}')
 
             drive = self.command.pack()
 
@@ -73,7 +70,6 @@ class serialCom:
             while self.ser.inWaiting() > 0:
                 data = self.ser.read(self.recive.size)
                 self.recive.unpack(data)
-                #print(f'r1:{self.recive.motor1} r2:{self.recive.motor2} r3:{self.recive.motor3}')
 
     def __init__(self):
         # Params
@@ -156,7 +152,6 @@ class serialCom:
         self.speed[1] = self.wheelLinearVelocity(speed, self.middle_wheel_angle, middle_px, X, Y) #keskmine
         self.speed[2] = self.wheelLinearVelocity(speed, self.left_wheel_angle, middle_px, X, Y) #vasak
 
-        #print(f'm1kesk:{self.speed[1]} m2vasak:{self.speed[2]} m3parem:{self.speed[0]}')
 
     def setStopped(self, stopped):
         self.running = stopped

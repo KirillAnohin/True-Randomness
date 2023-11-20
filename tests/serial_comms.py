@@ -29,7 +29,6 @@ class Command:
     # dGain: float = 0
     pid_type: int = 0  # 0 = instant pid; 1 = avg of last 10 values
     delimiter: int = 0xABCABC
-    #format = 'fffiiifffii'
     format = 'fffiiiii'
     size = struct.calcsize(format)
 
@@ -98,9 +97,6 @@ class QTWindow(QMainWindow):
         c.thrower = int(self.throwerSpinBox.value())
         c.servo = int(self.servoSpinBox.value())
         c.ir = int(self.irSpinBox.value())
-        # c.pGain = float(self.pSpinBox.value())
-        # c.iGain = float(self.iSpinBox.value())
-        # c.dGain = float(self.dSpinBox.value())
         s = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
         s.write(c.pack())
         out = s.read(c.size)
@@ -121,8 +117,6 @@ class QTWindow(QMainWindow):
     def mpl_timer_elapsed(self):
         rr = lambda x: np.arange(0, len(motor1Points), 1)
         self.mplCanvas.update_figure(rr(motor1Points), motor1Points)
-        # self.mplCanvas.update_figure(rr(motor2Points), motor2Points)
-        # self.mplCanvas.update_figure(rr(motor3Points), motor3Points)
         while len(motor1Points) > 100:
             motor1Points.pop(0)
         while len(motor2Points) > 100:
