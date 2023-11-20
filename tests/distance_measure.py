@@ -6,7 +6,6 @@ ThrowSpeed = 200
 
 
 def measurement():
-    global ThrowSpeed
 
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
