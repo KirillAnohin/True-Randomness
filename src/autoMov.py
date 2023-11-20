@@ -67,7 +67,8 @@ def main():
     toBallSpeed = PID(0.015, 0.00001, 0, setpoint=460)  # P=0.4 oli varem
     toBallSpeed.output_limits = (15, 75)  # Motor limits
     toBallSpeed.sample_time = 0.01
-    basketCenterSpeed = PID(0.06, 0.00001, 0.003, setpoint=310)  # 0.1, 0.000001, 0.001
+    basketCenterSpeed = PID(0.06, 0.00001, 0.003,
+                            setpoint=310)  # 0.1, 0.000001, 0.001
     basketCenterSpeed.output_limits = (-5, 5)  # Motor limits
     basketCenterSpeed.sample_time = 0.01
 
@@ -97,7 +98,8 @@ def main():
                 ballCnts = imageProcessing.getContours(frame)
                 if len(ballCnts) > 0:
                     ball_x, ball_y = imageProcessing.detectObj(frame, ballCnts)
-                    if ball_y > 415 and 310 < ball_x < 330:  # 30 - 60 parser.get('Cam', 'Height') - 65
+                    # 30 - 60 parser.get('Cam', 'Height') - 65
+                    if ball_y > 415 and 310 < ball_x < 330:
                         print('found ball')
                         state.change_state(STATE.PICKING_UP_BALL)
                     else:
@@ -115,7 +117,8 @@ def main():
                     robot.setServo(50)
                     if state.timer_seconds_passed() > 8:
                         robot.setServo(-100)  # eject
-                        state.change_state(STATE.FINDING_BALL)  # ball disappeared, restart
+                        # ball disappeared, restart
+                        state.change_state(STATE.FINDING_BALL)
                     elif robot.recive.ir == 1:
                         state.change_state(STATE.FINDING_BASKET)
                         pass
@@ -123,9 +126,11 @@ def main():
             elif state.current is STATE.FINDING_BASKET:
                 # finding basket
                 # to add if basket too close go back a little
-                basketCnts = imageProcessing.getBasketContours(frame, teamColor)
+                basketCnts = imageProcessing.getBasketContours(
+                    frame, teamColor)
                 if len(basketCnts) > 0:
-                    target_x, target_y, w, h = imageProcessing.detectObj(frame, basketCnts, False)
+                    target_x, target_y, w, h = imageProcessing.detectObj(
+                        frame, basketCnts, False)
 
                     basketCenteX, basketY = target_x + w/2, target_y+h
                     distance = imageProcessing.calc_distance(w)
@@ -156,7 +161,8 @@ def main():
 
                     if finaldistance > 130:
                         speed = max(50 - int(basketY / 5), 20)
-                        robot.omniMovement(speed, middle_px, basketCenteX, basketY)
+                        robot.omniMovement(
+                            speed, middle_px, basketCenteX, basketY)
                     elif 0 < finaldistance < 60:
                         robot.reverse(10)
                     else:
@@ -190,7 +196,8 @@ def main():
                     state.change_state(STATE.FINDING_BALL)
                 #
             else:
-                raise Exception(f'State not implemented in main(): {state.current}')
+                raise Exception(
+                    f'State not implemented in main(): {state.current}')
             pass
 
             cv2.putText(frame, str(state.current), (10, 30), cv2.FONT_HERSHEY_DUPLEX, 1,

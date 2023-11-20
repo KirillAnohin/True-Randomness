@@ -26,7 +26,8 @@ def detectLine(frame):
     frame = frame[0:340]
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     img_blur = cv2.medianBlur(hsv, 5)
-    mask = cv2.inRange(img_blur, tuple(filters["black"]["min"]), tuple(filters["black"]["max"]))
+    mask = cv2.inRange(img_blur, tuple(
+        filters["black"]["min"]), tuple(filters["black"]["max"]))
 
     dst = cv2.Canny(mask, 620, 260, None, 3)
     linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 70, 300)
@@ -64,9 +65,11 @@ def detectObj(frame, cnts, isBall=True):
                 if radius > 3:
                     # draw the circle and centroid on the frame,
                     # then update the list of tracked points
-                    cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                    cv2.circle(frame, (int(x), int(y)),
+                               int(radius), (0, 255, 255), 2)
                     cv2.circle(frame, center, 5, (0, 0, 255), -1)
-                    cv2.putText(frame, str(center), center, cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
+                    cv2.putText(frame, str(center), center,
+                                cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
                     cv2.putText(frame, str(round((radius ** 2) * 3.14)), (center[0] + 200, center[1]),
                                 cv2.FONT_HERSHEY_DUPLEX, 1, cv2.COLOR_YUV420sp2GRAY)
 
@@ -102,11 +105,13 @@ def calc_distance(width):
 def getBasketContours(frame, teamColor):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    maskBasket = cv2.inRange(hsv, tuple(filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
+    maskBasket = cv2.inRange(hsv, tuple(
+        filters[teamColor]["min"]), tuple(filters[teamColor]["max"]))
     maskBasket = cv2.morphologyEx(maskBasket, cv2.MORPH_OPEN, kernel)
     maskBasket = cv2.dilate(maskBasket, kernel, iterations=2)
 
-    basketcnts = cv2.findContours(maskBasket, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    basketcnts = cv2.findContours(
+        maskBasket, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     return basketcnts
 
@@ -114,10 +119,12 @@ def getBasketContours(frame, teamColor):
 def getContours(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    maskBall = cv2.inRange(hsv, tuple(filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
+    maskBall = cv2.inRange(hsv, tuple(
+        filters["Ball"]["min"]), tuple(filters["Ball"]["max"]))
     maskBall = cv2.morphologyEx(maskBall, cv2.MORPH_OPEN, kernel)
     maskBall = cv2.dilate(maskBall, kernel, iterations=3)
 
-    ballcnts = cv2.findContours(maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    ballcnts = cv2.findContours(
+        maskBall, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     return ballcnts

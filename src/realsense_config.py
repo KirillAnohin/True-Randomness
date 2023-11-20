@@ -13,11 +13,12 @@ advnc_mode = None
 def find_device_that_supports_advanced_mode():
     ctx = rs.context()
     ds5_dev = rs.device()
-    devices = ctx.query_devices();
+    devices = ctx.query_devices()
     for dev in devices:
         if dev.supports(rs.camera_info.product_id) and str(dev.get_info(rs.camera_info.product_id)) in DS5_product_ids:
             if dev.supports(rs.camera_info.name):
-                print("Found device that supports advanced mode:", dev.get_info(rs.camera_info.name))
+                print("Found device that supports advanced mode:",
+                      dev.get_info(rs.camera_info.name))
             return dev
     raise Exception("No device that supports advanced mode was found")
 
@@ -39,10 +40,12 @@ def load_json(configPath):
 def configure():
     global advnc_mode
     try:
-        configPath = Path(__file__).parent.parent.joinpath("./config/camConfig.json")
+        configPath = Path(__file__).parent.parent.joinpath(
+            "./config/camConfig.json")
         dev = find_device_that_supports_advanced_mode()
         advnc_mode = rs.rs400_advanced_mode(dev)
-        print("Advanced mode is", "enabled" if advnc_mode.is_enabled() else "disabled")
+        print("Advanced mode is",
+              "enabled" if advnc_mode.is_enabled() else "disabled")
 
         # Loop until we successfully enable advanced mode
         while not advnc_mode.is_enabled():
@@ -54,15 +57,19 @@ def configure():
             # The 'dev' object will become invalid and we need to initialize it again
             dev = find_device_that_supports_advanced_mode()
             advnc_mode = rs.rs400_advanced_mode(dev)
-            print("Advanced mode is", "enabled" if advnc_mode.is_enabled() else "disabled")
+            print("Advanced mode is",
+                  "enabled" if advnc_mode.is_enabled() else "disabled")
 
         # Get each control's current value
         print("Depth Control: \n", advnc_mode.get_depth_control())
         print("RSM: \n", advnc_mode.get_rsm())
-        print("RAU Support Vector Control: \n", advnc_mode.get_rau_support_vector_control())
+        print("RAU Support Vector Control: \n",
+              advnc_mode.get_rau_support_vector_control())
         print("Color Control: \n", advnc_mode.get_color_control())
-        print("RAU Thresholds Control: \n", advnc_mode.get_rau_thresholds_control())
-        print("SLO Color Thresholds Control: \n", advnc_mode.get_slo_color_thresholds_control())
+        print("RAU Thresholds Control: \n",
+              advnc_mode.get_rau_thresholds_control())
+        print("SLO Color Thresholds Control: \n",
+              advnc_mode.get_slo_color_thresholds_control())
         print("SLO Penalty Control: \n", advnc_mode.get_slo_penalty_control())
         print("HDAD: \n", advnc_mode.get_hdad())
         print("Color Correction: \n", advnc_mode.get_color_correction())
@@ -74,8 +81,10 @@ def configure():
         query_min_values_mode = 1
         query_max_values_mode = 2
         current_std_depth_control_group = advnc_mode.get_depth_control()
-        min_std_depth_control_group = advnc_mode.get_depth_control(query_min_values_mode)
-        max_std_depth_control_group = advnc_mode.get_depth_control(query_max_values_mode)
+        min_std_depth_control_group = advnc_mode.get_depth_control(
+            query_min_values_mode)
+        max_std_depth_control_group = advnc_mode.get_depth_control(
+            query_max_values_mode)
         print("Depth Control Min Values: \n ", min_std_depth_control_group)
         print("Depth Control Max Values: \n ", max_std_depth_control_group)
 
@@ -83,7 +92,8 @@ def configure():
         current_std_depth_control_group.scoreThreshA = int(
             (max_std_depth_control_group.scoreThreshA - min_std_depth_control_group.scoreThreshA) / 2)
         advnc_mode.set_depth_control(current_std_depth_control_group)
-        print("After Setting new value, Depth Control: \n", advnc_mode.get_depth_control())
+        print("After Setting new value, Depth Control: \n",
+              advnc_mode.get_depth_control())
 
         load_json(configPath)
 

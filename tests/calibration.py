@@ -28,7 +28,6 @@ def calibrate():
         if status:
             break
 
-
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
 
@@ -43,26 +42,32 @@ def calibrate():
             "max": [179, 255, 255]  # HSV maximum values
         }
 
-    cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(update_range, "min", 0, filters))
-    cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(update_range, "min", 1, filters))
-    cv2.createTrackbar("v_min", "Processed", filters["min"][2], 255, partial(update_range, "min", 2, filters))
-    cv2.createTrackbar("h_max", "Processed", filters["max"][0], 179, partial(update_range, "max", 0, filters))
-    cv2.createTrackbar("s_max", "Processed", filters["max"][1], 255, partial(update_range, "max", 1, filters))
-    cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(update_range, "max", 2, filters))
+    cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(
+        update_range, "min", 0, filters))
+    cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(
+        update_range, "min", 1, filters))
+    cv2.createTrackbar("v_min", "Processed", filters["min"][2], 255, partial(
+        update_range, "min", 2, filters))
+    cv2.createTrackbar("h_max", "Processed", filters["max"][0], 179, partial(
+        update_range, "max", 0, filters))
+    cv2.createTrackbar("s_max", "Processed", filters["max"][1], 255, partial(
+        update_range, "max", 1, filters))
+    cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(
+        update_range, "max", 2, filters))
 
     while True:
         frame = image_thread.getFrame()
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        #mask = cv2.medianBlur(hsv, 7)
+        # mask = cv2.medianBlur(hsv, 7)
 
         cv2.imshow("frame", frame)
 
         mask = cv2.inRange(hsv, tuple(filters["min"]), tuple(filters["max"]))
-        #mask = cv2.GaussianBlur(mask, (3, 3), cv2.BORDER_DEFAULT)
+        # mask = cv2.GaussianBlur(mask, (3, 3), cv2.BORDER_DEFAULT)
         mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
         mask = cv2.dilate(mask, kernel, iterations=2)
-        #imageProcessing.getFieldArea(frame, cnts3)
-        #cont = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # imageProcessing.getFieldArea(frame, cnts3)
+        # cont = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         cv2.imshow("Processed", mask)
 
