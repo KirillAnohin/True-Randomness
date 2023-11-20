@@ -18,7 +18,6 @@ def update_range(edge, channel, filters, value):
 
 
 def calibrate():
-    global parser
 
     while True:
         print("Available objects: Ball, BasketBlue, BasketMagenta, FieldColor, BlackLines")
