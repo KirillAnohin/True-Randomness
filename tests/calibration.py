@@ -28,7 +28,6 @@ def calibrate():
         if status:
             break
 
-
     cv2.namedWindow("Processed")
     image_thread = vision.imageCapRS2()
 
@@ -43,12 +42,18 @@ def calibrate():
             "max": [179, 255, 255]  # HSV maximum values
         }
 
-    cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(update_range, "min", 0, filters))
-    cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(update_range, "min", 1, filters))
-    cv2.createTrackbar("v_min", "Processed", filters["min"][2], 255, partial(update_range, "min", 2, filters))
-    cv2.createTrackbar("h_max", "Processed", filters["max"][0], 179, partial(update_range, "max", 0, filters))
-    cv2.createTrackbar("s_max", "Processed", filters["max"][1], 255, partial(update_range, "max", 1, filters))
-    cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(update_range, "max", 2, filters))
+    cv2.createTrackbar("h_min", "Processed", filters["min"][0], 179, partial(
+        update_range, "min", 0, filters))
+    cv2.createTrackbar("s_min", "Processed", filters["min"][1], 255, partial(
+        update_range, "min", 1, filters))
+    cv2.createTrackbar("v_min", "Processed", filters["min"][2], 255, partial(
+        update_range, "min", 2, filters))
+    cv2.createTrackbar("h_max", "Processed", filters["max"][0], 179, partial(
+        update_range, "max", 0, filters))
+    cv2.createTrackbar("s_max", "Processed", filters["max"][1], 255, partial(
+        update_range, "max", 1, filters))
+    cv2.createTrackbar("v_max", "Processed", filters["max"][2], 255, partial(
+        update_range, "max", 2, filters))
 
     while True:
         frame = image_thread.getFrame()

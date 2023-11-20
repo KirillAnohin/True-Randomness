@@ -54,13 +54,12 @@ class serialCom:
 
     def commandThread(self):
         while self.running:
-            self.command.motor1 = float(self.speed[1]) #keskmine
-            self.command.motor2 = float(self.speed[2]) #vasak
-            self.command.motor3 = float(self.speed[0]) #parem
+            self.command.motor1 = float(self.speed[1])  # keskmine
+            self.command.motor2 = float(self.speed[2])  # vasak
+            self.command.motor3 = float(self.speed[0])  # parem
             self.command.thrower = int(self.throwSpeed)
             self.command.servo = int(self.servo)
             self.command.ir = int(self.ir)
-
 
             drive = self.command.pack()
 
@@ -88,7 +87,8 @@ class serialCom:
         print(self.ser.name)
         # Thread
         self.running = True
-        self.w = threading.Thread(name='commandThread', target=self.commandThread)
+        self.w = threading.Thread(
+            name='commandThread', target=self.commandThread)
         self.w.start()
 
     # sd:right:middle:left
@@ -129,9 +129,11 @@ class serialCom:
         try:
             print("Y", Y)
             if Y > 260:
-                robotDirectionAngle = math.degrees(math.atan((middle_px - X) / Y)) + 90
+                robotDirectionAngle = math.degrees(
+                    math.atan((middle_px - X) / Y)) + 90
             else:
-                robotDirectionAngle = math.degrees(math.atan2(1200 - Y, X - 320))
+                robotDirectionAngle = math.degrees(
+                    math.atan2(1200 - Y, X - 320))
             print(robotDirectionAngle)
         except ZeroDivisionError:
             robotDirectionAngle = 0.1
@@ -141,17 +143,21 @@ class serialCom:
         if Y is not None and Y != 0:
             robotDirectionAngle = self.calcDirectionAngle(middle_px, X, Y)
             print("robotANgle", robotDirectionAngle)
-            wheelLinearVelocity = robotSpeed * math.cos(math.radians(robotDirectionAngle - wheelAngle))
+            wheelLinearVelocity = robotSpeed * \
+                math.cos(math.radians(robotDirectionAngle - wheelAngle))
         else:
-            wheelLinearVelocity = robotSpeed * math.cos(math.radians(90 - wheelAngle))
+            wheelLinearVelocity = robotSpeed * \
+                math.cos(math.radians(90 - wheelAngle))
         return wheelLinearVelocity
 
     # sd:right:middle:left
     def omniMovement(self, speed, middle_px, X=None, Y=None):
-        self.speed[0] = self.wheelLinearVelocity(speed, self.right_wheel_angle, middle_px, X, Y) #parem
-        self.speed[1] = self.wheelLinearVelocity(speed, self.middle_wheel_angle, middle_px, X, Y) #keskmine
-        self.speed[2] = self.wheelLinearVelocity(speed, self.left_wheel_angle, middle_px, X, Y) #vasak
-
+        self.speed[0] = self.wheelLinearVelocity(
+            speed, self.right_wheel_angle, middle_px, X, Y)  # parem
+        self.speed[1] = self.wheelLinearVelocity(
+            speed, self.middle_wheel_angle, middle_px, X, Y)  # keskmine
+        self.speed[2] = self.wheelLinearVelocity(
+            speed, self.left_wheel_angle, middle_px, X, Y)  # vasak
 
     def setStopped(self, stopped):
         self.running = stopped
