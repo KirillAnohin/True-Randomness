@@ -6,7 +6,8 @@ from pathlib import Path
 
 class config:
     def __init__(self):
-        self.config_path = "./config/config.ini"  # Path where default config is located
+        # Path where default config is located
+        self.config_path = "./config/config.ini"
         self.root_dir = Path(__file__).parent.parent
         self.parser = configparser.ConfigParser()
         self.parser.read(self.root_dir.joinpath(self.config_path))

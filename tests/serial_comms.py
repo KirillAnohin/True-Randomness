@@ -29,7 +29,7 @@ class Command:
     # dGain: float = 0
     pid_type: int = 0  # 0 = instant pid; 1 = avg of last 10 values
     delimiter: int = 0xABCABC
-    #format = 'fffiiifffii'
+    # format = 'fffiiifffii'
     format = 'fffiiiii'
     size = struct.calcsize(format)
 
@@ -64,7 +64,8 @@ class QTWindow(QMainWindow):
         uic.loadUi('serial_comms.ui', self)
         self.mplWidget = QtWidgets.QWidget(self)
         self.mplLayout = QtWidgets.QVBoxLayout(self.mplWidget)
-        self.mplCanvas = MyDynamicMplCanvas(self.mplWidget, width=320, height=320, dpi=100)
+        self.mplCanvas = MyDynamicMplCanvas(
+            self.mplWidget, width=320, height=320, dpi=100)
         self.mplLayout.addWidget(self.mplCanvas)
         self.controlsPlotContainer.addWidget(self.mplWidget)
 
@@ -119,7 +120,7 @@ class QTWindow(QMainWindow):
         print(f'm1:{f.motor1}, m2:{f.motor2}, m3:{f.motor3}')
 
     def mpl_timer_elapsed(self):
-        rr = lambda x: np.arange(0, len(motor1Points), 1)
+        def rr(x): return np.arange(0, len(motor1Points), 1)
         self.mplCanvas.update_figure(rr(motor1Points), motor1Points)
         # self.mplCanvas.update_figure(rr(motor2Points), motor2Points)
         # self.mplCanvas.update_figure(rr(motor3Points), motor3Points)
